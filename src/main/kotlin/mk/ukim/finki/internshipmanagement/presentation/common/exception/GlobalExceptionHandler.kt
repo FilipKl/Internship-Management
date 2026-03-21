@@ -1,6 +1,7 @@
 package mk.ukim.finki.internshipmanagement.presentation.common.exception
 
 import mk.ukim.finki.internshipmanagement.application.journalentry.exception.JournalEntryNotFoundException
+import mk.ukim.finki.internshipmanagement.application.internshipposting.exception.InternshipPostingNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -26,6 +27,22 @@ class GlobalExceptionHandler {
             "error" to "Journal Entry Not Found",
             "message" to (ex.message ?: "Not found"),
             "entryId" to ex.entryId,
+            "path" to request.getDescription(false).replace("uri=", "")
+        )
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body)
+    }
+    
+    @ExceptionHandler(InternshipPostingNotFoundException::class)
+    fun handleInternshipPostingNotFound(
+        ex: InternshipPostingNotFoundException,
+        request: WebRequest
+    ): ResponseEntity<Any> {
+        val body = linkedMapOf<String, Any>(
+            "timestamp" to LocalDateTime.now(),
+            "status" to HttpStatus.NOT_FOUND.value(),
+            "error" to "Internship Posting Not Found",
+            "message" to (ex.message ?: "Not found"),
+            "postingId" to ex.postingId,
             "path" to request.getDescription(false).replace("uri=", "")
         )
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body)
