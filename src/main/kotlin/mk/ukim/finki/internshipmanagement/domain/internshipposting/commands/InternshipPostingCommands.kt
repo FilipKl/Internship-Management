@@ -1,9 +1,12 @@
 package mk.ukim.finki.internshipmanagement.domain.internshipposting.commands
 
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.InternshipPostingId
+
+import org.axonframework.modelling.command.TargetAggregateIdentifier
 import java.time.LocalDate
 
 data class CreateInternshipPostingCommand(
+    @TargetAggregateIdentifier
     val id: InternshipPostingId,
     val title: String,
     val company: String,
@@ -16,6 +19,7 @@ data class CreateInternshipPostingCommand(
 )
 
 data class UpdateInternshipPostingCommand(
+    @TargetAggregateIdentifier
     val id: InternshipPostingId,
     val title: String,
     val company: String,
@@ -27,6 +31,7 @@ data class UpdateInternshipPostingCommand(
 )
 
 data class EditInternshipPostingCommand(
+    @TargetAggregateIdentifier
     val id: InternshipPostingId,
     val title: String,
     val description: String,
@@ -34,10 +39,12 @@ data class EditInternshipPostingCommand(
 )
 
 data class PublishInternshipPostingCommand(
+    @TargetAggregateIdentifier
     val id: InternshipPostingId,
     val publishedBy: String
 )
 
 data class DeleteInternshipPostingCommand(
+    @TargetAggregateIdentifier
     val id: InternshipPostingId
 )

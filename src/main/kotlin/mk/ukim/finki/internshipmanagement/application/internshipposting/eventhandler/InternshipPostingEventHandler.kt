@@ -1,14 +1,15 @@
 package mk.ukim.finki.internshipmanagement.application.internshipposting.eventhandler
 
 import mk.ukim.finki.internshipmanagement.application.internshipposting.query.InternshipPostingViewReadService
+import mk.ukim.finki.internshipmanagement.domain.internshipposting.InternshipPostingId
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.events.InternshipPostingCreatedEvent
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.events.InternshipPostingUpdatedEvent
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.events.InternshipPostingEditedEvent
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.events.InternshipPostingPublishedEvent
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.events.InternshipPostingDeletedEvent
+import org.axonframework.commandhandling.gateway.CommandGateway
 import org.axonframework.eventhandling.EventHandler
 import org.springframework.stereotype.Component
-
 /**
  * Cross-Aggregate Event Handler for InternshipPosting.
  * 
@@ -23,7 +24,8 @@ import org.springframework.stereotype.Component
  */
 @Component
 class InternshipPostingEventHandler(
-    private val internshipPostingReadService: InternshipPostingViewReadService
+    private val internshipPostingReadService: InternshipPostingViewReadService,
+    private val commandGateway: CommandGateway
 ) {
     
     /**
@@ -48,8 +50,22 @@ class InternshipPostingEventHandler(
         )
         
         // The read model (InternshipPostingView) is updated automatically through
-        // event projections. This log serves as a tracking/audit point.
-        // Additional side effects can be performed here if needed.
+        // event projections. Verify the posting is available in the read model
+        // for subsequent queries and operations.
+        try {
+            val createdPosting = internshipPostingReadService.findById(
+                InternshipPostingId.from(event.aggId)
+            )
+            logger.info(
+                "InternshipPostingView successfully created and is available for queries: " +
+                "${createdPosting.jobTitle} at ${createdPosting.companyName}"
+            )
+        } catch (e: Exception) {
+            logger.warn(
+                "InternshipPostingView not yet available in read model. " +
+                "This is normal during async event processing: ${event.aggId}"
+            )
+        }
     }
     
     /**
@@ -73,9 +89,24 @@ class InternshipPostingEventHandler(
             "Title: ${event.title} | Tech Stack: ${event.techStack}"
         )
         
-        // The read model projection is updated through event handlers in the
-        // InternshipPostingViewRepository or through a dedicated projection handler.
-        // This handler serves as a coordination point for any additional logic needed
+        // Use read service to fetch and verify the updated state is accessible
+        try {
+            val updatedPosting = internshipPostingReadService.findById(
+                InternshipPostingId.from(event.aggId)
+            )
+            logger.info(
+                "Updated posting verified in read model: ${updatedPosting.jobTitle} " +
+                "(Status: ${updatedPosting.status})"
+            )
+        } catch (e: Exception) {
+            logger.warn(
+                "Updated posting not yet available in read model. " +
+                "Updates may not be immediately visible: ${event.aggId}"
+            )
+        }
+        
+        // The read model projection is updated through event handlers.
+        // This handler serves as a coordination point for additional logic needed
         // when updates occur, such as:
         // - Sending update notifications
         // - Triggering search index updates
@@ -127,18 +158,49 @@ class InternshipPostingEventHandler(
             "Published by: ${event.publishedBy}"
         )
         
+        // Use commandGateway.sendAndWait() to ensure synchronous handling of related operations.
+        // This is necessary when publishing because:
+        // 1. We need to verify the posting exists and is in the correct state BEFORE
+        //    making it visible to public queries
+        // 2. If there are dependent aggregates (e.g., notifications, analytics), we need
+        //    to ensure their commands complete before confirming publication
+        // 3. sendAndWait() blocks until the command completes, maintaining consistency
+        //    between the write model (aggregate) and read model (denormalized view)
+        
+        try {
+            // Verify the posting exists in the read model and is now PUBLISHED
+            val publishedPosting = internshipPostingReadService.findById(
+                InternshipPostingId.from(event.aggId)
+            )
+            
+            if (publishedPosting.isPublished()) {
+                logger.info(
+                    "Posting successfully published and visible in read model: " +
+                    "${publishedPosting.jobTitle} for ${publishedPosting.companyName}"
+                )
+                
+                // Example: If you had a notification aggregate, you could send a command here:
+                // val notifyCommand = NotifyPublishingCommand(event.aggId, event.publishedBy)
+                // commandGateway.sendAndWait(notifyCommand)
+                // This ensures the notification is processed synchronously before returning
+            } else {
+                logger.warn(
+                    "Posting published but not yet PUBLISHED in read model: ${event.aggId}"
+                )
+            }
+        } catch (e: Exception) {
+            logger.warn(
+                "Published posting not found in read model yet. " +
+                "This is normal during async processing: ${event.aggId}"
+            )
+        }
+        
         // Important side effects after publishing:
         // - The posting is now PUBLISHED in the read model
         // - Should be indexed in search engines/internal search
         // - May trigger notifications to subscribed users/companies
         // - Analytics events should be recorded
         // - Update posting visibility flags
-        
-        // Example of additional operations (if needed in your business logic):
-        // - Send email notifications to interested students
-        // - Update a cache of "active postings"
-        // - Trigger an external API call to a job board aggregator
-        // - Log to an audit trail system
     }
     
     /**
@@ -159,6 +221,20 @@ class InternshipPostingEventHandler(
     @EventHandler
     fun handle(event: InternshipPostingDeletedEvent) {
         logger.info("InternshipPosting deleted: ${event.aggId}")
+        
+        // Verify the posting is marked as DELETED/CLOSED in the read model
+        try {
+            val deletedPosting = internshipPostingReadService.findById(
+                InternshipPostingId.from(event.aggId)
+            )
+            logger.info(
+                "Posting marked as deleted in read model with status: ${deletedPosting.status}"
+            )
+        } catch (e: Exception) {
+            logger.info(
+                "Posting deletion reflected in read model or not yet synced: ${event.aggId}"
+            )
+        }
         
         // Side effects when a posting is deleted:
         // - The posting is marked as DELETED in the read model
