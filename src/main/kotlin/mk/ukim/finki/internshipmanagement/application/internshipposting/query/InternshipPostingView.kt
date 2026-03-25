@@ -31,7 +31,7 @@ data class Location(
 @Immutable
 data class InternshipPostingView(
     @EmbeddedId
-    @AttributeOverride(name = "value", column = Column(name = "id"))
+    @AttributeOverride(name = "id", column = Column(name = "id"))
     val internshipPostingId: InternshipPostingId = InternshipPostingId(),
 
     @Column(nullable = false)
@@ -43,7 +43,7 @@ data class InternshipPostingView(
     @Column(nullable = false, columnDefinition = "TEXT")
     val description: String = "",
 
-    @Column(nullable = false)
+    @Column(name = "tech_stack", nullable = false)
     val techStack: String = "",
 
     @Embedded

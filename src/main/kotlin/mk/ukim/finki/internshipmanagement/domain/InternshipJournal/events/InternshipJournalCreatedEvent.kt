@@ -29,7 +29,7 @@ data class InternshipJournalCreatedEvent(
     val professorId: ProfessorId,
 ): InternshipJournalEvent(aggId) {
     constructor(command: CreateInternshipJournalCommand) : this(
-        aggId = command.id.value,
+        aggId = command.id.getValue(),
         id = command.id,
         companyName = command.companyName,
         studentId = command.studentId,
@@ -47,7 +47,7 @@ data class JournalStatusUpdatedEvent(
 ) : InternshipJournalEvent(aggId) {
 
     constructor(command: UpdateJournalStatusCommand) : this(
-        aggId = command.id.value,
+        aggId = command.id.getValue(),
         isOngoing = command.isOngoing
     )
 
@@ -75,7 +75,7 @@ data class InternshipJournalCompletedEvent(
 ) : InternshipJournalEvent(aggId) {
 
     constructor(command: CompleteInternshipJournalCommand) : this(
-        aggId = command.id.value
+        aggId = command.id.getValue()
     )
 
     override fun getEventType()= "InternshipJournalCompletedEvent"

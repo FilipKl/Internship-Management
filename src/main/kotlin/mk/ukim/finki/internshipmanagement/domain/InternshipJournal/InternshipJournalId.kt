@@ -10,7 +10,7 @@ import java.util.*
  */
 @Embeddable
 data class InternshipJournalId(
-    val value: String = "" // No-arg constructor for JPA / Axon
+    val id: String = "" // No-arg constructor for JPA / Axon
 ) : Identifier<String> {
 
     // Convenience constructor for new IDs
@@ -20,6 +20,6 @@ data class InternshipJournalId(
         fun generate(): InternshipJournalId = InternshipJournalId(UUID.randomUUID())
     }
 
-    override fun getValue(): String = value
-    override fun toString(): String = value
+    override fun getValue(): String = id
+    override fun toString(): String = id
 }

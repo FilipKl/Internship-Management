@@ -7,10 +7,8 @@ import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.Transient
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.CompanyName
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.InternshipJournalId
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.InternshipJournalStatus
@@ -27,17 +25,20 @@ import java.time.LocalDateTime
 data class InternshipJournalView(
 
 
-    @Id
-    @AttributeOverride(name = "value", column = Column(name = "id"))
+    @EmbeddedId
+    @AttributeOverride(name = "id", column = Column(name = "id"))
     val internshipJournalId: InternshipJournalId = InternshipJournalId(),
 
     @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "company_name"))
     val companyName: CompanyName,
 
     @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "student_id"))
     val studentId: StudentId,
 
     @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "professor_id"))
     val professorId: ProfessorId,
 
     @Enumerated(EnumType.STRING)
@@ -45,10 +46,8 @@ data class InternshipJournalView(
 
     val dateCreated: LocalDateTime,
 
-    val numberOfEntries: Int // derived from entries, for display
-    ,
-    @Id
-    var id: Long? = null
+    @Transient
+    val numberOfEntries: Int = 0 // derived field, not persisted in internship_journal
 ) : LabeledEntity {
 
     override fun getId(): Identifier<out Any> = internshipJournalId

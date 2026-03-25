@@ -11,11 +11,9 @@ import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.events.Journa
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.events.JournalStatusUpdatedEvent
 import mk.ukim.finki.internshipmanagement.domain.common.AggregateRoot
 import mk.ukim.finki.internshipmanagement.domain.common.LabeledEntity
-import mk.ukim.finki.internshipmanagement.domain.common.Identifier
 import org.axonframework.commandhandling.CommandHandler
 import org.axonframework.eventsourcing.EventSourcingHandler
 import org.axonframework.modelling.command.AggregateIdentifier
-import org.axonframework.modelling.command.AggregateLifecycle
 import org.axonframework.modelling.command.AggregateLifecycle.apply
 import org.axonframework.spring.stereotype.Aggregate
 import java.time.LocalDateTime
@@ -28,21 +26,32 @@ import java.time.LocalDateTime
  * Mutable properties: entries, isOngoing
  */
 
+@Aggregate
 @Entity
+@Suppress("JpaDataSourceORMInspection")
 @Table(name = "internship_journal")
 class InternshipJournal : LabeledEntity,AggregateRoot {
 
     @AggregateIdentifier
     @EmbeddedId
-    lateinit var id: InternshipJournalId
+    lateinit var internshipJournalId: InternshipJournalId
 
     @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "company_name"))
     lateinit var companyName: CompanyName
     @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "student_id"))
     lateinit var studentId: StudentId
     @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "professor_id"))
     lateinit var professorId: ProfessorId
     var isOngoing: Boolean = true
+    @ElementCollection
+    @CollectionTable(
+        name = "internship_journal_entries",
+        joinColumns = [JoinColumn(name = "journal_id")]
+    )
+    @AttributeOverride(name = "value", column = Column(name = "entry_id"))
     val entries: MutableList<JournalEntryId> = mutableListOf()
     lateinit var dateCreated: LocalDateTime
 
@@ -68,7 +77,7 @@ class InternshipJournal : LabeledEntity,AggregateRoot {
     // ----------------------
     @EventSourcingHandler
     fun on(event: InternshipJournalCreatedEvent) {
-        id = event.id
+        internshipJournalId = event.id
         companyName = event.companyName
         studentId = event.studentId
         professorId = event.professorId
@@ -80,7 +89,7 @@ class InternshipJournal : LabeledEntity,AggregateRoot {
 
     @CommandHandler
     fun handle(command: UpdateJournalStatusCommand) {
-        AggregateLifecycle.apply(JournalStatusUpdatedEvent(command))
+        apply(JournalStatusUpdatedEvent(command))
     }
     @CommandHandler
     fun handle(command: CompleteInternshipJournalCommand) {
@@ -93,11 +102,11 @@ class InternshipJournal : LabeledEntity,AggregateRoot {
             "Internship journal is already completed"
         }
 
-        AggregateLifecycle.apply(InternshipJournalCompletedEvent(command))
+        apply(InternshipJournalCompletedEvent(command))
     }
 
     @EventSourcingHandler
-    fun on(event: InternshipJournalCompletedEvent) {
+    fun on(@Suppress("UNUSED_PARAMETER") event: InternshipJournalCompletedEvent) {
         status = InternshipJournalStatus.COMPLETED
     }
 
@@ -108,7 +117,7 @@ class InternshipJournal : LabeledEntity,AggregateRoot {
 
     @CommandHandler
     fun handle(command: AddJournalEntryCommand) {
-        AggregateLifecycle.apply(JournalEntryAddedEvent(command))
+        apply(JournalEntryAddedEvent(command))
     }
 
     @EventSourcingHandler
@@ -119,7 +128,7 @@ class InternshipJournal : LabeledEntity,AggregateRoot {
     // ----------------------
     // LabeledEntity implementation
     // ----------------------
-    override fun getId(): InternshipJournalId = id
+    override fun getId(): InternshipJournalId = internshipJournalId
     override fun getLabel(): String = "Internship journal of student ${studentId} at ${companyName}"
 }
 

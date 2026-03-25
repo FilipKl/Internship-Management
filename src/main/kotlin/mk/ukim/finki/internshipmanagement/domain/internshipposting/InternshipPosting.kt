@@ -10,6 +10,7 @@ import mk.ukim.finki.internshipmanagement.domain.internshipposting.CompanyName
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.Description
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.TechStack
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.Location
+import org.axonframework.spring.stereotype.Aggregate
 
 /**
  * InternshipPosting Aggregate Root
@@ -19,6 +20,7 @@ import mk.ukim.finki.internshipmanagement.domain.internshipposting.Location
  * - InternshipPostingId: Strongly-typed identifier
  * - Title, Description, Company, TechStack, Location: Embedded validated value objects
  */
+@Aggregate
 @Entity
 @Table(name = "internship_postings")
 class InternshipPosting : AggregateRoot {
