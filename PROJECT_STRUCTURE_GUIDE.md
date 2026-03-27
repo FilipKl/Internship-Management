@@ -42,8 +42,17 @@ src/main/kotlin/mk/ukim/finki/internshipmanagement/
 │           └── [AggregateName]NotFoundException.kt
 │
 ├── infrastructure/                  # Technical infrastructure
-│   └── persistence/
-│       └── [AggregateName]RepositoryConfig.kt  # GenericJpaRepository bean config
+│   ├── kafka/                       # Event streaming & cross-service communication
+│   │   ├── KafkaEventConsumer.kt   # Kafka message listener (consumer)
+│   │   ├── KafkaEventPublisher.kt  # Kafka event publisher (producer)
+│   │   ├── externalDTOs.kt         # External DTOs from other services (ACL)
+│   │   └── [EventName]Translator.kt # Anti-Corruption Layer (ACL) translator
+│   │
+│   ├── persistence/
+│   │   ├── AxonJpaConfig.kt        # Axon Framework JPA configuration
+│   │   └── [AggregateName]RepositoryConfig.kt  # GenericJpaRepository bean config
+│   │
+│   └── repository/                 # Repository implementations
 │
 ├── presentation/                    # REST API & HTTP layer
 │   ├── common/

@@ -1,4 +1,4 @@
-package mk.ukim.finki.internshipmanagement.domain.infrastructure.persistence
+package mk.ukim.finki.internshipmanagement.infrastructure.persistence
 
 import jakarta.persistence.EntityManager
 import org.axonframework.common.jpa.EntityManagerProvider

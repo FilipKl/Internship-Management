@@ -1,4 +1,4 @@
-package mk.ukim.finki.internshipmanagement.domain.infrastructure.persistence
+package mk.ukim.finki.internshipmanagement.infrastructure.persistence
 
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.InternshipJournal
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.InternshipJournalId
@@ -25,3 +25,4 @@ class InternshipJournalRepositoryConfig {
             .build()
     }
 }
+
