@@ -50,7 +50,27 @@ services:
       timeout: 5s
       retries: 5
 
+  # Axon Server for event sourcing and command handling
+  axonserver:
+    image: axoniq/axonserver:latest-dev
+    container_name: axonserver
+    ports:
+      - "8024:8024"   # Axon Server web UI dashboard
+      - "8124:8124"   # Axon Server gRPC port (used by clients)
+    environment:
+      AXONIQ_AXONSERVER_DEVMODE_ENABLED: "true"
+      AXONIQ_AXONSERVER_STANDALONE: "true"
+    volumes:
+      - axonserver_data:/axonserver/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8024/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   broker_data:
+    driver: local
+  axonserver_data:
     driver: local
 
