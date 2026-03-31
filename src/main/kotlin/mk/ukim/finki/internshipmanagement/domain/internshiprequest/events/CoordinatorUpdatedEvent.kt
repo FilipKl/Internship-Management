@@ -1,11 +1,12 @@
 package mk.ukim.finki.internshipmanagement.domain.internshiprequest.events
 
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.InternshipRequestId
+import mk.ukim.finki.internshipmanagement.domain.internshiprequest.CoordinatorId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.commands.UpdateCoordinatorCommand
 
 data class CoordinatorUpdatedEvent(
     val internshipRequestId: InternshipRequestId,
-    val coordinatorId: String
+    val coordinatorId: CoordinatorId
 ) {
     constructor(command: UpdateCoordinatorCommand) : this(
         internshipRequestId = command.internshipRequestId,

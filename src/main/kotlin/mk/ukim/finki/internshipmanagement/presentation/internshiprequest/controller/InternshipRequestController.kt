@@ -2,8 +2,10 @@ package mk.ukim.finki.internshipmanagement.presentation.internshiprequest.contro
 
 import mk.ukim.finki.internshipmanagement.application.internshiprequest.query.InternshipRequestQueryService
 import mk.ukim.finki.internshipmanagement.application.internshiprequest.query.InternshipRequestView
+import mk.ukim.finki.internshipmanagement.domain.internshiprequest.CoordinatorId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.InternshipRequestId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.InternshipRequestStatus
+import mk.ukim.finki.internshipmanagement.domain.internshiprequest.StudentId
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -29,11 +31,11 @@ class InternshipRequestController(
 
     @GetMapping("/by-student/{studentId}")
     fun findByStudentId(@PathVariable studentId: String): List<InternshipRequestView> {
-        return queryService.findByStudentId(studentId)
+        return queryService.findByStudentId(StudentId(studentId))
     }
 
     @GetMapping("/by-coordinator/{coordinatorId}")
     fun findByCoordinatorId(@PathVariable coordinatorId: String): List<InternshipRequestView> {
-        return queryService.findByCoordinatorId(coordinatorId)
+        return queryService.findByCoordinatorId(CoordinatorId(coordinatorId))
     }
 }
