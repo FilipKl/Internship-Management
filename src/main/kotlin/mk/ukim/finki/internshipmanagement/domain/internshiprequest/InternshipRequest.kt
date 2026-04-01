@@ -21,10 +21,21 @@ class InternshipRequest : LabeledEntity {
     @AttributeOverride(name = "value", column = Column(name = "id"))
     private lateinit var internshipRequestId: InternshipRequestId
 
-    private lateinit var studentId: String
-    private lateinit var companyId: String
-    private lateinit var internshipId: String
-    private lateinit var coordinatorId: String
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "student_id"))
+    private lateinit var studentId: StudentId
+
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "company_id"))
+    private lateinit var companyId: CompanyId
+
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "internship_id"))
+    private lateinit var internshipId: InternshipId
+
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "coordinator_id"))
+    private lateinit var coordinatorId: CoordinatorId
     private lateinit var status: InternshipRequestStatus
     private lateinit var dateOfCreation: LocalDate
 
