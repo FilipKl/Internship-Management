@@ -22,7 +22,7 @@ class IncomingEventHandler(
     fun on(event: InternshipJournalCreatedEvent) {
 
         val command = CreateInternshipJournalCommand(
-            id = event.id,
+            id = event.internshipJournalId,
             companyName = event.companyName,
             studentId = event.studentId,
             professorId = event.professorId
@@ -36,7 +36,7 @@ class IncomingEventHandler(
     fun handle(event: JournalEntryAddedEvent) {
 
         val command = AddJournalEntryCommand(
-            journalId = event.journalId,
+            journalId = event.internshipJournalId,
             entryId = event.entryId
         )
 

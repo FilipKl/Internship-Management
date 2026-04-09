@@ -49,7 +49,7 @@ class KafkaEventConsumer(
         groupId = "internship-management-group",
         containerFactory = "kafkaListenerContainerFactory"
     )
-    fun listenToPartnerRegistration(record: ConsumerRecord<String, String>) {
+    fun listenToPartnerEvents(record: ConsumerRecord<String, String>) {
         try {
             logger.debug("Received partner event: {}", record.value())
 
@@ -64,9 +64,8 @@ class KafkaEventConsumer(
                 if (partnerRegistered.partnerName != null) {
                     val companyName = partnerEventTranslator.toCompanyName(partnerRegistered)
                     logger.info(
-                        "Partner registered: {} - translated to CompanyName: {}",
-                        partnerRegistered.partnerName,
-                        companyName.value
+                        "Processed external event: Partner registered [{}]",
+                        partnerRegistered.partnerName
                     )
                     return
                 }
@@ -83,9 +82,8 @@ class KafkaEventConsumer(
                 if (partnerUpdated.partnerName != null) {
                     val companyName = partnerEventTranslator.toCompanyNameUpdate(partnerUpdated)
                     logger.info(
-                        "Partner updated: {} - translated to CompanyName: {}",
-                        partnerUpdated.partnerName,
-                        companyName?.value
+                        "Processed external event: Partner updated [{}]",
+                        partnerUpdated.partnerName
                     )
                     return
                 }
@@ -102,10 +100,9 @@ class KafkaEventConsumer(
                 if (partnerDeactivated.partnerName != null) {
                     val companyName = partnerEventTranslator.toCompanyNameFromDeactivation(partnerDeactivated)
                     logger.info(
-                        "Partner deactivated: {} (Reason: {}) - translated to CompanyName: {}",
+                        "Processed external event: Partner deactivated [{}] (Reason: {})",
                         partnerDeactivated.partnerName,
-                        partnerDeactivated.deactivationReason,
-                        companyName?.value
+                        partnerDeactivated.deactivationReason
                     )
                     return
                 }

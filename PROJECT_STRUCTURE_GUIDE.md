@@ -1,8 +1,5 @@
 # Internship Management - Project Structure 
 
-## Overview
-This project follows **Domain-Driven Design (DDD)** and **Command Query Responsibility Segregation (CQRS)** patterns. All aggregates must follow the same structure demonstrated with the `JournalEntry` aggregate.
-
 ---
 
 ## 📁 Project Directory Structure
@@ -11,6 +8,7 @@ This project follows **Domain-Driven Design (DDD)** and **Command Query Responsi
 src/main/kotlin/mk/ukim/finki/internshipmanagement/
 ├── domain/                          # Core business logic
 │   ├── common/                      # Shared domain abstractions
+│   │   ├── AbstractEvent.kt        # Base class for ALL events (Kafka-enabled)
 │   │   ├── AggregateRoot.kt        # Base class for all aggregates
 │   │   ├── DomainEvent.kt          # Base class for domain events
 │   │   ├── Identifier.kt           # Base class for value object IDs
@@ -26,7 +24,9 @@ src/main/kotlin/mk/ukim/finki/internshipmanagement/
 │       │   ├── Update[AggregateName]Command.kt
 │       │   └── ...
 │       └── events/                 # Domain event classes (what happened)
-│           ├── [AggregateName]CreatedEvent.kt
+│           ├── [AggregateName]Event.kt          # Base event class (extends AbstractEvent)
+│           ├── [AggregateName]CreatedEvent.kt  # Publishable event with toExternalEvent()
+│           ├── [AggregateName]CreatedExternalEvent.kt  # External contract
 │           ├── [AggregateName]UpdatedEvent.kt
 │           └── ...
 │
@@ -42,11 +42,22 @@ src/main/kotlin/mk/ukim/finki/internshipmanagement/
 │           └── [AggregateName]NotFoundException.kt
 │
 ├── infrastructure/                  # Technical infrastructure
+│   ├── messaging/                   # Event publishing to Kafka (layered)
+│   │   ├── EventMessagingService.kt       # Service interface (hides Kafka)
+│   │   ├── EventMessagingRepository.kt    # Repository interface
+│   │   ├── impl/
+│   │   │   ├── EventMessagingServiceImpl.kt      # Service implementation
+│   │   │   └── KafkaMessagingRepositoryImpl.kt   # ONLY class with KafkaTemplate
+│   │   └── handlers/
+│   │       └── EventMessagingEventHandler.kt    # Generic handler for ALL events
+│   │
 │   ├── kafka/                       # Event streaming & cross-service communication
+│   │   ├── KafkaConfig.kt          # Kafka beans & configuration
 │   │   ├── KafkaEventConsumer.kt   # Kafka message listener (consumer)
-│   │   ├── KafkaEventPublisher.kt  # Kafka event publisher (producer)
-│   │   ├── externalDTOs.kt         # External DTOs from other services (ACL)
-│   │   └── [EventName]Translator.kt # Anti-Corruption Layer (ACL) translator
+│   │   ├── acl/                    # Anti-Corruption Layer (ACL)
+│   │   │   ├── ExternalDTOs.kt     # External DTOs from other services (defensive)
+│   │   │   └── PartnerEventTranslator.kt  # ACL translator (DTO → domain)
+│   │   └── KafkaEventPublisher.kt  # Legacy (replaced by EventMessagingEventHandler)
 │   │
 │   ├── persistence/
 │   │   ├── AxonJpaConfig.kt        # Axon Framework JPA configuration

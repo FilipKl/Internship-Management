@@ -1,89 +1,127 @@
 package mk.ukim.finki.internshipmanagement.domain.internshipposting.events
 
-import mk.ukim.finki.internshipmanagement.domain.common.DomainEvent
-import mk.ukim.finki.internshipmanagement.domain.internshipposting.Location
+import mk.ukim.finki.internshipmanagement.domain.common.AbstractEvent
+import mk.ukim.finki.internshipmanagement.domain.internshipposting.InternshipPostingId
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.commands.*
 import java.time.LocalDateTime
 import java.util.*
 
+/**
+ * Base class for all InternshipPosting events.
+ * Extends AbstractEvent to support Kafka publishing.
+ */
 abstract class InternshipPostingEvent(
-    aggregateId: String,
-    eventId: String = UUID.randomUUID().toString(),
-    occurredAt: LocalDateTime = LocalDateTime.now()
-) : DomainEvent(aggregateId, eventId, occurredAt)
+    open val internshipPostingId: InternshipPostingId
+) : AbstractEvent(internshipPostingId)
+
+/**
+ * External event: InternshipPosting created
+ * Published to Kafka for other microservices
+ */
+data class InternshipPostingCreatedExternalEvent(
+    val id: InternshipPostingId,
+    val title: String,
+    val company: String,
+    val description: String,
+    val techStack: String,
+    val location: String
+)
 
 data class InternshipPostingCreatedEvent(
-    val aggId: String,
+    override val internshipPostingId: InternshipPostingId,
     val title: String,
     val company: String,
     val description: String,
     val techStack: String,
     val location: String
-) : InternshipPostingEvent(aggId) {
+) : InternshipPostingEvent(internshipPostingId) {
     constructor(command: CreateInternshipPostingCommand) : this(
-        command.id.id,
+        command.id,
         command.title,
         command.company,
         command.description,
         command.techStack,
         command.location
-
     )
-    override fun getEventType() = "InternshipPostingCreated"
+
+    override fun toExternalEvent(): InternshipPostingCreatedExternalEvent {
+        return InternshipPostingCreatedExternalEvent(
+            id = internshipPostingId,
+            title = title,
+            company = company,
+            description = description,
+            techStack = techStack,
+            location = location
+        )
+    }
 }
 
+// Internal events - do not publish
 data class InternshipPostingUpdatedEvent(
-    val aggId: String,
+    override val internshipPostingId: InternshipPostingId,
     val title: String,
     val description: String,
     val techStack: String,
     val company: String,
     val location: String
-
-) : InternshipPostingEvent(aggId) {
+) : InternshipPostingEvent(internshipPostingId) {
     constructor(command: UpdateInternshipPostingCommand) : this(
-        command.id.id,
+        command.id,
         command.title,
         command.description,
         command.techStack,
         command.company,
         command.location
-
     )
-    override fun getEventType() = "InternshipPostingUpdated"
 }
 
 data class InternshipPostingEditedEvent(
-    val aggId: String,
+    override val internshipPostingId: InternshipPostingId,
     val title: String,
     val description: String,
     val techStack: String
-) : InternshipPostingEvent(aggId) {
+) : InternshipPostingEvent(internshipPostingId) {
     constructor(command: EditInternshipPostingCommand) : this(
-        command.id.id,
+        command.id,
         command.title,
         command.description,
         command.techStack
     )
-    override fun getEventType() = "InternshipPostingEdited"
 }
+
+/**
+ * External event: InternshipPosting published
+ * Published to Kafka for other microservices
+ */
+data class InternshipPostingPublishedExternalEvent(
+    val id: InternshipPostingId,
+    val publishedBy: String
+)
 
 data class InternshipPostingPublishedEvent(
-    val aggId: String,
+    override val internshipPostingId: InternshipPostingId,
     val publishedBy: String
-) : InternshipPostingEvent(aggId) {
+) : InternshipPostingEvent(internshipPostingId) {
     constructor(command: PublishInternshipPostingCommand) : this(
-        command.id.id,
+        command.id,
         command.publishedBy
     )
-    override fun getEventType() = "InternshipPostingPublished"
+
+    override fun toExternalEvent(): InternshipPostingPublishedExternalEvent {
+        return InternshipPostingPublishedExternalEvent(
+            id = internshipPostingId,
+            publishedBy = publishedBy
+        )
+    }
 }
 
+/**
+ * Internal event - do not publish
+ */
 data class InternshipPostingDeletedEvent(
-    val aggId: String
-) : InternshipPostingEvent(aggId) {
+    override val internshipPostingId: InternshipPostingId
+) : InternshipPostingEvent(internshipPostingId) {
     constructor(command: DeleteInternshipPostingCommand) : this(
-        command.id.id
+        command.id
     )
-    override fun getEventType() = "InternshipPostingDeleted"
 }

@@ -77,7 +77,7 @@ class InternshipJournal : LabeledEntity,AggregateRoot {
     // ----------------------
     @EventSourcingHandler
     fun on(event: InternshipJournalCreatedEvent) {
-        internshipJournalId = event.id
+        internshipJournalId = event.internshipJournalId
         companyName = event.companyName
         studentId = event.studentId
         professorId = event.professorId

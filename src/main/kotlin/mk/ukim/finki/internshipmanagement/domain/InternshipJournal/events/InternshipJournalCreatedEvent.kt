@@ -9,77 +9,107 @@ import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.commands.AddJ
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.commands.CompleteInternshipJournalCommand
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.commands.CreateInternshipJournalCommand
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.commands.UpdateJournalStatusCommand
-import mk.ukim.finki.internshipmanagement.domain.common.DomainEvent
+import mk.ukim.finki.internshipmanagement.domain.common.AbstractEvent
 import java.time.LocalDateTime
-import java.util.UUID
 
+/**
+ * Intermediate event base class for InternshipJournal aggregate.
+ * All InternshipJournal events extend this class, which extends AbstractEvent.
+ * This gives all InternshipJournal events automatic Kafka support.
+ */
 abstract class InternshipJournalEvent(
-    aggregateId: String,
-    eventId: String = UUID.randomUUID().toString(),
-    occurredAt: LocalDateTime = LocalDateTime.now()
-) : DomainEvent(aggregateId, eventId, occurredAt)
+    open val internshipJournalId: InternshipJournalId
+) : AbstractEvent(internshipJournalId)
 
-
-
-data class InternshipJournalCreatedEvent(
-    val aggId: String,
+/**
+ * External event: InternshipJournal created
+ * Published to Kafka for other microservices
+ */
+data class InternshipJournalCreatedExternalEvent(
     val id: InternshipJournalId,
     val companyName: CompanyName,
     val studentId: StudentId,
+    val professorId: ProfessorId
+)
+
+data class InternshipJournalCreatedEvent(
+    override val internshipJournalId: InternshipJournalId,
+    val companyName: CompanyName,
+    val studentId: StudentId,
     val professorId: ProfessorId,
-): InternshipJournalEvent(aggId) {
+): InternshipJournalEvent(internshipJournalId) {
     constructor(command: CreateInternshipJournalCommand) : this(
-        aggId = command.id.getValue(),
-        id = command.id,
+        internshipJournalId = command.id,
         companyName = command.companyName,
         studentId = command.studentId,
         professorId = command.professorId
     )
 
-    override fun getEventType() = "InternshipJournalCreatedEvent"
+    override fun toExternalEvent(): InternshipJournalCreatedExternalEvent {
+        return InternshipJournalCreatedExternalEvent(
+            id = internshipJournalId,
+            companyName = companyName,
+            studentId = studentId,
+            professorId = professorId
+        )
+    }
 }
 
-
-// doesn't really make sense to add a third one, I think it would just create issues and it's just the same thing I think !
+/**
+ * Internal event: Journal status updated
+ * Does NOT publish to Kafka (returns null from toExternalEvent)
+ */
 data class JournalStatusUpdatedEvent(
-    val aggId: String,
+    override val internshipJournalId: InternshipJournalId,
     val isOngoing: Boolean
-) : InternshipJournalEvent(aggId) {
+) : InternshipJournalEvent(internshipJournalId) {
 
     constructor(command: UpdateJournalStatusCommand) : this(
-        aggId = command.id.getValue(),
+        internshipJournalId = command.id,
         isOngoing = command.isOngoing
     )
-
-    override fun getEventType() = "JournalStatusUpdatedEvent"
 }
 
+/**
+ * Internal event: Journal entry added
+ * Does NOT publish to Kafka (returns null from toExternalEvent)
+ */
 data class JournalEntryAddedEvent(
-    val aggId: String,
-    val journalId: InternshipJournalId,
+    override val internshipJournalId: InternshipJournalId,
     val entryId: JournalEntryId,
-) : InternshipJournalEvent(aggId) {
+) : InternshipJournalEvent(internshipJournalId) {
 
     constructor(command: AddJournalEntryCommand) : this(
-        aggId=command.journalId.toString(),
-        journalId=command.journalId,
+        internshipJournalId = command.journalId,
         entryId = command.entryId
     )
-
-    override fun getEventType()="JournalEntryAddedEvent"
-
 }
 
+/**
+ * External event: InternshipJournal completed
+ * Published to Kafka for other microservices
+ */
+data class InternshipJournalCompletedExternalEvent(
+    val id: InternshipJournalId,
+    val completedAt: LocalDateTime = LocalDateTime.now()
+)
+
 data class InternshipJournalCompletedEvent(
-    val aggId: String
-) : InternshipJournalEvent(aggId) {
+    override val internshipJournalId: InternshipJournalId,
+    val completedAt: LocalDateTime = LocalDateTime.now()
+) : InternshipJournalEvent(internshipJournalId) {
 
     constructor(command: CompleteInternshipJournalCommand) : this(
-        aggId = command.id.getValue()
+        internshipJournalId = command.id
     )
 
-    override fun getEventType()= "InternshipJournalCompletedEvent"
+    override fun toExternalEvent(): InternshipJournalCompletedExternalEvent {
+        return InternshipJournalCompletedExternalEvent(
+            id = internshipJournalId,
+            completedAt = completedAt
+        )
     }
+}
 
 
 

@@ -1,109 +1,140 @@
 package mk.ukim.finki.internshipmanagement.domain.journalentry.events
 
-import mk.ukim.finki.internshipmanagement.domain.common.DomainEvent
+import mk.ukim.finki.internshipmanagement.domain.common.AbstractEvent
+import mk.ukim.finki.internshipmanagement.domain.journalentry.JournalEntryId
 import mk.ukim.finki.internshipmanagement.domain.journalentry.commands.*
 import java.time.LocalDateTime
 import java.util.*
 
 /**
  * Base class for all JournalEntry domain events.
+ * Extends AbstractEvent to support Kafka publishing.
  */
 abstract class JournalEntryEvent(
-    aggregateId: String,
-    eventId: String = UUID.randomUUID().toString(),
-    occurredAt: LocalDateTime = LocalDateTime.now()
-) : DomainEvent(aggregateId, eventId, occurredAt)
+    open val journalEntryId: JournalEntryId
+) : AbstractEvent(journalEntryId)
 
-// Creation Event
-data class JournalEntryCreatedEvent(
-    val aggId: String,
+// External event for JournalEntry creation
+data class JournalEntryCreatedExternalEvent(
+    val id: JournalEntryId,
     val journalId: String,
     val title: String,
     val content: String
-) : JournalEntryEvent(aggId) {
-    
+)
+
+// Creation Event
+data class JournalEntryCreatedEvent(
+    override val journalEntryId: JournalEntryId,
+    val journalId: String,
+    val title: String,
+    val content: String
+) : JournalEntryEvent(journalEntryId) {
+
     constructor(command: CreateJournalEntryCommand) : this(
-        command.id.id,
+        command.id,
         command.journalId,
         command.titleText,
         command.contentText
     )
     
-    override fun getEventType() = "JournalEntryCreated"
+    override fun toExternalEvent(): JournalEntryCreatedExternalEvent {
+        return JournalEntryCreatedExternalEvent(
+            id = journalEntryId,
+            journalId = journalId,
+            title = title,
+            content = content
+        )
+    }
 }
 
-// Update Events
+// Update Events (internal - do not publish)
 data class EntryTitleUpdatedEvent(
-    val aggId: String,
+    override val journalEntryId: JournalEntryId,
     val newTitle: String
-) : JournalEntryEvent(aggId) {
-    
+) : JournalEntryEvent(journalEntryId) {
+
     constructor(command: UpdateEntryTitleCommand) : this(
-        command.entryId.id,
+        command.entryId,
         command.newTitleText
     )
-    
-    override fun getEventType() = "EntryTitleUpdated"
 }
 
 data class EntryContentUpdatedEvent(
-    val aggId: String,
+    override val journalEntryId: JournalEntryId,
     val newContent: String
-) : JournalEntryEvent(aggId) {
-    
+) : JournalEntryEvent(journalEntryId) {
+
     constructor(command: UpdateEntryContentCommand) : this(
-        command.entryId.id,
+        command.entryId,
         command.newContentText
     )
-    
-    override fun getEventType() = "EntryContentUpdated"
 }
+
+// External event for validation
+data class JournalEntryValidatedExternalEvent(
+    val id: JournalEntryId,
+    val validatedBy: String
+)
+
+// External event for rejection
+data class JournalEntryRejectedExternalEvent(
+    val id: JournalEntryId,
+    val rejectedBy: String,
+    val rejectionReason: String
+)
 
 // Status Events
 data class JournalEntryValidatedEvent(
-    val aggId: String,
+    override val journalEntryId: JournalEntryId,
     val validatedBy: String
-) : JournalEntryEvent(aggId) {
-    
+) : JournalEntryEvent(journalEntryId) {
+
     constructor(command: ValidateJournalEntryCommand) : this(
-        command.entryId.id,
+        command.entryId,
         command.validatedBy
     )
     
-    override fun getEventType() = "JournalEntryValidated"
+    override fun toExternalEvent(): JournalEntryValidatedExternalEvent {
+        return JournalEntryValidatedExternalEvent(
+            id = journalEntryId,
+            validatedBy = validatedBy
+        )
+    }
 }
 
 data class JournalEntryRejectedEvent(
-    val aggId: String,
+    override val journalEntryId: JournalEntryId,
     val rejectedBy: String,
     val rejectionReason: String
-) : JournalEntryEvent(aggId) {
-    
+) : JournalEntryEvent(journalEntryId) {
+
     constructor(command: RejectJournalEntryCommand) : this(
-        command.entryId.id,
+        command.entryId,
         command.rejectedBy,
         command.rejectionReason
     )
     
-    override fun getEventType() = "JournalEntryRejected"
+    override fun toExternalEvent(): JournalEntryRejectedExternalEvent {
+        return JournalEntryRejectedExternalEvent(
+            id = journalEntryId,
+            rejectedBy = rejectedBy,
+            rejectionReason = rejectionReason
+        )
+    }
 }
 
-// Legacy Events
+// Legacy Events (internal - do not publish)
 data class JournalEntryEditedEvent(
-    val aggId: String,
+    override val journalEntryId: JournalEntryId,
     val journalId: String,
     val title: String,
     val content: String
-) : JournalEntryEvent(aggId) {
-    override fun getEventType() = "JournalEntryEdited"
-}
+) : JournalEntryEvent(journalEntryId)
 
 data class JournalEntryAddedEvent(
-    val aggId: String,
+    override val journalEntryId: JournalEntryId,
     val journalId: String,
     val title: String,
     val content: String
-) : JournalEntryEvent(aggId) {
-    override fun getEventType() = "JournalEntryAdded"
-}
+) : JournalEntryEvent(journalEntryId)
 

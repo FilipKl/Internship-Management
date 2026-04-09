@@ -91,7 +91,7 @@ class InternshipPosting : AggregateRoot {
     // ==================== Event Handlers ====================
 
     fun on(event: InternshipPostingCreatedEvent) {
-        internshipPostingId = InternshipPostingId.from(event.aggregateId)
+        internshipPostingId = event.internshipPostingId
         title = JobTitle(event.title)
         company = CompanyName(event.company)
         description = Description(event.description)

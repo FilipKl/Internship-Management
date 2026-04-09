@@ -24,9 +24,8 @@ import java.time.LocalDateTime
 data class JournalEntryView(
     @EmbeddedId
     @AttributeOverride(name = "value", column = Column(name = "id"))
-    val journalEntryId: JournalEntryId = JournalEntryId(),
-
-    @Column(nullable = false)
+    val journalEntryId: JournalEntryId = JournalEntryId(java.util.UUID.randomUUID()),
+    // ...existing code...
     val journalId: String = "",
 
     @Column(nullable = false)

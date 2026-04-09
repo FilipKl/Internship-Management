@@ -45,7 +45,7 @@ class InternshipPostingEventHandler(
     @EventHandler
     fun handle(event: InternshipPostingCreatedEvent) {
         logger.info(
-            "InternshipPosting created: ${event.aggId} | " +
+            "InternshipPosting created: ${event.internshipPostingId} | " +
             "Title: ${event.title} | Company: ${event.company}"
         )
         
@@ -54,7 +54,7 @@ class InternshipPostingEventHandler(
         // for subsequent queries and operations.
         try {
             val createdPosting = internshipPostingReadService.findById(
-                InternshipPostingId.from(event.aggId)
+                event.internshipPostingId
             )
             logger.info(
                 "InternshipPostingView successfully created and is available for queries: " +
@@ -63,7 +63,7 @@ class InternshipPostingEventHandler(
         } catch (e: Exception) {
             logger.warn(
                 "InternshipPostingView not yet available in read model. " +
-                "This is normal during async event processing: ${event.aggId}"
+                "This is normal during async event processing: ${event.internshipPostingId}"
             )
         }
     }
@@ -85,14 +85,14 @@ class InternshipPostingEventHandler(
     @EventHandler
     fun handle(event: InternshipPostingUpdatedEvent) {
         logger.info(
-            "InternshipPosting updated: ${event.aggId} | " +
+            "InternshipPosting updated: ${event.internshipPostingId} | " +
             "Title: ${event.title} | Tech Stack: ${event.techStack}"
         )
         
         // Use read service to fetch and verify the updated state is accessible
         try {
             val updatedPosting = internshipPostingReadService.findById(
-                InternshipPostingId.from(event.aggId)
+                event.internshipPostingId
             )
             logger.info(
                 "Updated posting verified in read model: ${updatedPosting.jobTitle} " +
@@ -101,7 +101,7 @@ class InternshipPostingEventHandler(
         } catch (e: Exception) {
             logger.warn(
                 "Updated posting not yet available in read model. " +
-                "Updates may not be immediately visible: ${event.aggId}"
+                "Updates may not be immediately visible: ${event.internshipPostingId}"
             )
         }
         
@@ -126,7 +126,7 @@ class InternshipPostingEventHandler(
     @EventHandler
     fun handle(event: InternshipPostingEditedEvent) {
         logger.info(
-            "InternshipPosting edited: ${event.aggId} | " +
+            "InternshipPosting edited: ${event.internshipPostingId} | " +
             "New Title: ${event.title}"
         )
         
@@ -154,7 +154,7 @@ class InternshipPostingEventHandler(
     @EventHandler
     fun handle(event: InternshipPostingPublishedEvent) {
         logger.info(
-            "InternshipPosting published: ${event.aggId} | " +
+            "InternshipPosting published: ${event.internshipPostingId} | " +
             "Published by: ${event.publishedBy}"
         )
         
@@ -170,7 +170,7 @@ class InternshipPostingEventHandler(
         try {
             // Verify the posting exists in the read model and is now PUBLISHED
             val publishedPosting = internshipPostingReadService.findById(
-                InternshipPostingId.from(event.aggId)
+                event.internshipPostingId
             )
             
             if (publishedPosting.isPublished()) {
@@ -180,18 +180,18 @@ class InternshipPostingEventHandler(
                 )
                 
                 // Example: If you had a notification aggregate, you could send a command here:
-                // val notifyCommand = NotifyPublishingCommand(event.aggId, event.publishedBy)
+                // val notifyCommand = NotifyPublishingCommand(event.internshipPostingId, event.publishedBy)
                 // commandGateway.sendAndWait(notifyCommand)
                 // This ensures the notification is processed synchronously before returning
             } else {
                 logger.warn(
-                    "Posting published but not yet PUBLISHED in read model: ${event.aggId}"
+                    "Posting published but not yet PUBLISHED in read model: ${event.internshipPostingId}"
                 )
             }
         } catch (e: Exception) {
             logger.warn(
                 "Published posting not found in read model yet. " +
-                "This is normal during async processing: ${event.aggId}"
+                "This is normal during async processing: ${event.internshipPostingId}"
             )
         }
         
@@ -220,19 +220,19 @@ class InternshipPostingEventHandler(
      */
     @EventHandler
     fun handle(event: InternshipPostingDeletedEvent) {
-        logger.info("InternshipPosting deleted: ${event.aggId}")
-        
+        logger.info("InternshipPosting deleted: ${event.internshipPostingId}")
+
         // Verify the posting is marked as DELETED/CLOSED in the read model
         try {
             val deletedPosting = internshipPostingReadService.findById(
-                InternshipPostingId.from(event.aggId)
+                event.internshipPostingId
             )
             logger.info(
                 "Posting marked as deleted in read model with status: ${deletedPosting.status}"
             )
         } catch (e: Exception) {
             logger.info(
-                "Posting deletion reflected in read model or not yet synced: ${event.aggId}"
+                "Posting deletion reflected in read model or not yet synced: ${event.internshipPostingId}"
             )
         }
         

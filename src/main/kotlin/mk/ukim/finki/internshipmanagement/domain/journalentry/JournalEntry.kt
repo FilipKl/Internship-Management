@@ -54,12 +54,17 @@ class JournalEntry : AggregateRoot {
     constructor(command: CreateJournalEntryCommand) {
         journalEntryId = JournalEntryId.generate()
         status = EntryStatus.DRAFT
-        recordEvent(JournalEntryCreatedEvent(command))
+        recordEvent(JournalEntryCreatedEvent(
+            journalEntryId = journalEntryId,
+            journalId = command.journalId,
+            title = command.titleText,
+            content = command.contentText
+        ))
     }
     
     // Event Handlers
     fun on(event: JournalEntryCreatedEvent) {
-        journalEntryId = JournalEntryId.from(event.aggregateId)
+        journalEntryId = event.journalEntryId
         journalId = event.journalId
         title = EntryTitle(event.title)
         content = EntryContent(event.content)
@@ -70,7 +75,10 @@ class JournalEntry : AggregateRoot {
     // Command Handlers - Update Title
     fun handle(command: UpdateEntryTitleCommand) {
         check(status == EntryStatus.DRAFT) { "Only draft entries can be edited" }
-        recordEvent(EntryTitleUpdatedEvent(command))
+        recordEvent(EntryTitleUpdatedEvent(
+            journalEntryId = journalEntryId,
+            newTitle = command.newTitleText
+        ))
     }
     
     fun on(event: EntryTitleUpdatedEvent) {
@@ -81,7 +89,10 @@ class JournalEntry : AggregateRoot {
     // Command Handlers - Update Content
     fun handle(command: UpdateEntryContentCommand) {
         check(status == EntryStatus.DRAFT) { "Only draft entries can be edited" }
-        recordEvent(EntryContentUpdatedEvent(command))
+        recordEvent(EntryContentUpdatedEvent(
+            journalEntryId = journalEntryId,
+            newContent = command.newContentText
+        ))
     }
     
     fun on(event: EntryContentUpdatedEvent) {
@@ -92,7 +103,10 @@ class JournalEntry : AggregateRoot {
     // Command Handlers - Validate
     fun handle(command: ValidateJournalEntryCommand) {
         check(status == EntryStatus.DRAFT) { "Only draft entries can be validated" }
-        recordEvent(JournalEntryValidatedEvent(command))
+        recordEvent(JournalEntryValidatedEvent(
+            journalEntryId = journalEntryId,
+            validatedBy = command.validatedBy
+        ))
     }
     
     fun on(event: JournalEntryValidatedEvent) {
@@ -105,7 +119,11 @@ class JournalEntry : AggregateRoot {
     fun handle(command: RejectJournalEntryCommand) {
         check(status != EntryStatus.REJECTED) { "Entry is already rejected" }
         check(status == EntryStatus.DRAFT) { "Only draft entries can be rejected" }
-        recordEvent(JournalEntryRejectedEvent(command))
+        recordEvent(JournalEntryRejectedEvent(
+            journalEntryId = journalEntryId,
+            rejectedBy = command.rejectedBy,
+            rejectionReason = command.rejectionReason
+        ))
     }
     
     fun on(event: JournalEntryRejectedEvent) {
@@ -119,8 +137,8 @@ class JournalEntry : AggregateRoot {
     @Deprecated("Use command handlers instead")
     fun edit(titleText: String, contentText: String) {
         check(status == EntryStatus.DRAFT) { "Only draft entries can be edited" }
-        recordEvent(JournalEntryEditedEvent(journalEntryId.id, journalId, titleText, contentText))
-        on(JournalEntryEditedEvent(journalEntryId.id, journalId, titleText, contentText))
+        recordEvent(JournalEntryEditedEvent(journalEntryId, journalId, titleText, contentText))
+        on(JournalEntryEditedEvent(journalEntryId, journalId, titleText, contentText))
     }
     
     fun on(event: JournalEntryEditedEvent) {
