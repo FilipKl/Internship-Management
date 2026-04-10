@@ -16,14 +16,13 @@ import java.time.LocalDateTime
 
 /**
  * Read model / View for JournalEntry aggregate.
- * Immutable projection optimized for display/query purposes.
+ * Mutable projection optimized for updates from event handlers.
  */
 @Entity
 @Table(name = "journal_entries")
-@Immutable
 data class JournalEntryView(
     @EmbeddedId
-    @AttributeOverride(name = "value", column = Column(name = "id"))
+    @AttributeOverride(name = "id", column = Column(name = "id"))
     val journalEntryId: JournalEntryId = JournalEntryId(java.util.UUID.randomUUID()),
     // ...existing code...
     val journalId: String = "",
@@ -43,7 +42,8 @@ data class JournalEntryView(
 
     val editedAt: LocalDateTime? = null,
     val reviewedAt: LocalDateTime? = null,
-    val reviewedBy: String? = null
+    val reviewedBy: String? = null,
+    val reviewReason: String? = null
 ) : LabeledEntity {
 
     fun getContentPreview(): String = if (content.length > 100) "${content.substring(0, 100)}..." else content

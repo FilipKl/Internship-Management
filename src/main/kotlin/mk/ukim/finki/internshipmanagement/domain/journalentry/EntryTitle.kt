@@ -14,11 +14,13 @@ import jakarta.persistence.Embeddable
 data class EntryTitle(val value: String = "") {
     
     init {
-        val trimmed = value.trim()
-        
-        require(trimmed.isNotBlank()) { "Entry title cannot be blank" }
-        require(trimmed.length in 1..255) { 
-            "Entry title must be between 1 and 255 characters (got ${trimmed.length})"
+        if (value.isNotEmpty()) {
+            val trimmed = value.trim()
+
+            require(trimmed.isNotBlank()) { "Entry title cannot be blank" }
+            require(trimmed.length in 1..255) {
+                "Entry title must be between 1 and 255 characters (got ${trimmed.length})"
+            }
         }
     }
     
