@@ -66,7 +66,7 @@ class InternshipPosting : AggregateRoot {
 
     @CommandHandler
     constructor(command: CreateInternshipPostingCommand) {
-        internshipPostingId = InternshipPostingId.generate()
+        internshipPostingId = command.id
         status = PostingStatus.DRAFT
         recordEvent(InternshipPostingCreatedEvent(command))
     }
