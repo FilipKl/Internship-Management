@@ -66,5 +66,6 @@ class InternshipPostingController(
     @GetMapping("/count/{status}")
     fun countByStatus(@PathVariable status: String): ResponseEntity<Long> =
         ResponseEntity.ok(readService.countByStatus(InternshipPosting.PostingStatus.valueOf(status.uppercase())))
+
 }
 
