@@ -1,5 +1,6 @@
 package mk.ukim.finki.internshipmanagement.application.internshipposting.query
 
+import mk.ukim.finki.internshipmanagement.domain.internshipposting.InternshipPostingId
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Repository
  * Provides query methods for reading denormalized internship posting data.
  */
 @Repository
-interface InternshipPostingViewRepository : JpaRepository<InternshipPostingView, String> {
+interface InternshipPostingViewRepository : JpaRepository<InternshipPostingView, InternshipPostingId> {
 
     // ==================== Status ====================
     fun findByStatus(status: String): List<InternshipPostingView>

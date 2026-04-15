@@ -1,16 +1,30 @@
 package mk.ukim.finki.internshipmanagement.domain.internshipposting
 
+import com.fasterxml.jackson.annotation.JsonValue
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.JsonDeserializer
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.DeserializationContext
 import jakarta.persistence.Embeddable
 import mk.ukim.finki.internshipmanagement.domain.common.Identifier
 import java.util.*
 
 /**
+ * Custom deserializer for InternshipPostingId
+ */
+class InternshipPostingIdDeserializer : JsonDeserializer<InternshipPostingId>() {
+    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): InternshipPostingId {
+        return InternshipPostingId.from(p.text)
+    }
+}
+
+/**
  * Strongly-typed identifier for InternshipPosting aggregate.
  * Wraps UUID in a value object to prevent mixing IDs from different aggregates.
- * Example: "InternshipPosting:550e8400-e29b-41d4-a716-446655440000"
  */
 @Embeddable
-data class InternshipPostingId(val id: String = "") : Identifier<String> {
+@JsonDeserialize(using = InternshipPostingIdDeserializer::class)
+data class InternshipPostingId(val id: UUID = UUID.randomUUID()) : Identifier<UUID> {
 
     companion object {
         private const val PREFIX = "InternshipPosting:"
@@ -19,34 +33,27 @@ data class InternshipPostingId(val id: String = "") : Identifier<String> {
          * Create a new InternshipPostingId with a random UUID.
          */
         fun generate(): InternshipPostingId {
-            return InternshipPostingId(PREFIX + UUID.randomUUID())
+            return InternshipPostingId(UUID.randomUUID())
         }
 
         /**
-         * Create from existing UUID string (adds prefix if not present).
+         * Create from existing UUID string.
          */
         fun from(uuidString: String): InternshipPostingId {
-            return if (uuidString.startsWith(PREFIX)) {
-                InternshipPostingId(uuidString)
-            } else {
-                InternshipPostingId(PREFIX + uuidString)
-            }
+            val cleaned = uuidString.removePrefix(PREFIX)
+            return InternshipPostingId(UUID.fromString(cleaned))
         }
 
         /**
          * Create from UUID object.
          */
         fun from(uuid: UUID): InternshipPostingId {
-            return InternshipPostingId(PREFIX + uuid.toString())
+            return InternshipPostingId(uuid)
         }
     }
 
-    /**
-     * Get the raw UUID part (without prefix).
-     */
-    fun getRawId(): String = id.replace(PREFIX, "")
+    override fun getValue(): UUID = id
 
-    override fun getValue(): String = id
-
-    override fun toString(): String = id
+    @JsonValue
+    override fun toString(): String = id.toString()
 }

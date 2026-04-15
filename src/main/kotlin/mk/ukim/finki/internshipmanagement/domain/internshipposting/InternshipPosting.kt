@@ -1,61 +1,47 @@
 package mk.ukim.finki.internshipmanagement.domain.internshipposting
 
-import jakarta.persistence.*
-import mk.ukim.finki.internshipmanagement.domain.common.AggregateRoot
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.commands.*
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.events.*
+import org.axonframework.commandhandling.CommandHandler
+import org.axonframework.eventsourcing.EventSourcingHandler
+import org.axonframework.modelling.command.AggregateIdentifier
+import org.axonframework.modelling.command.AggregateLifecycle
+import org.axonframework.spring.stereotype.Aggregate
 import java.time.LocalDateTime
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.JobTitle
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.CompanyName
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.Description
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.TechStack
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.Location
-import org.axonframework.spring.stereotype.Aggregate
-import org.axonframework.commandhandling.CommandHandler
-import org.axonframework.eventsourcing.EventSourcingHandler
 
 /**
  * InternshipPosting Aggregate Root
  * Manages internship posting lifecycle: Create, Update, Edit, Publish, Delete
+ *
+ * Uses Axon event sourcing - state is reconstructed from events, not persisted directly.
  *
  * Uses value objects for type-safe domain modeling:
  * - InternshipPostingId: Strongly-typed identifier
  * - Title, Description, Company, TechStack, Location: Embedded validated value objects
  */
 @Aggregate
-@Entity
-@Table(name = "internship_postings")
-class InternshipPosting : AggregateRoot {
+class InternshipPosting {
 
-    @EmbeddedId
-    @AttributeOverride(name = "value", column = Column(name = "id"))
+    @AggregateIdentifier
     lateinit var internshipPostingId: InternshipPostingId
 
-    @Embedded
-    @AttributeOverride(name = "value", column = Column(name = "title"))
     lateinit var title: JobTitle
 
-    @Embedded
-    @AttributeOverride(name = "value", column = Column(name = "company"))
     lateinit var company: CompanyName
 
-    @Embedded
-    @AttributeOverride(name = "value", column = Column(name = "description", columnDefinition = "TEXT"))
     lateinit var description: Description
 
-    @Embedded
-    @AttributeOverride(name = "value", column = Column(name = "tech_stack"))
     lateinit var techStack: TechStack
 
-    @Embedded
-    @AttributeOverride(name = "value", column = Column(name = "location"))
     lateinit var location: Location
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     lateinit var status: PostingStatus
 
-    @Column(nullable = false)
     lateinit var createdAt: LocalDateTime
 
     var updatedAt: LocalDateTime? = null
@@ -64,35 +50,36 @@ class InternshipPosting : AggregateRoot {
 
     // ==================== Command Handlers ====================
 
+    /**
+     * Command Handler: Create a new InternshipPosting.
+     */
     @CommandHandler
     constructor(command: CreateInternshipPostingCommand) {
-        internshipPostingId = command.id
-        status = PostingStatus.DRAFT
-        recordEvent(InternshipPostingCreatedEvent(command))
+        AggregateLifecycle.apply(InternshipPostingCreatedEvent(command))
     }
 
     @CommandHandler
     fun handle(command: UpdateInternshipPostingCommand) {
         check(status.canUpdate()) { "Cannot update internship posting in $status status" }
-        recordEvent(InternshipPostingUpdatedEvent(command))
+        AggregateLifecycle.apply(InternshipPostingUpdatedEvent(command))
     }
 
     @CommandHandler
     fun handle(command: EditInternshipPostingCommand) {
         check(status.canUpdate()) { "Cannot edit internship posting in $status status" }
-        recordEvent(InternshipPostingEditedEvent(command))
+        AggregateLifecycle.apply(InternshipPostingEditedEvent(command))
     }
 
     @CommandHandler
     fun handle(command: PublishInternshipPostingCommand) {
         check(status.canPublish()) { "Cannot publish internship posting in $status status" }
-        recordEvent(InternshipPostingPublishedEvent(command))
+        AggregateLifecycle.apply(InternshipPostingPublishedEvent(command))
     }
 
     @CommandHandler
     fun handle(command: DeleteInternshipPostingCommand) {
         check(status.canClose()) { "Cannot delete internship posting in $status status" }
-        recordEvent(InternshipPostingDeletedEvent(command))
+        AggregateLifecycle.apply(InternshipPostingDeletedEvent(command))
     }
 
     // ==================== Event Handlers ====================
@@ -104,7 +91,12 @@ class InternshipPosting : AggregateRoot {
         company = CompanyName(event.company)
         description = Description(event.description)
         techStack = TechStack(event.techStack)
-        location = Location(event.location)
+        // Parse location string - format: "city, country" or "city, country (Remote)"
+        val isRemote = event.location.contains("(Remote)")
+        val locationParts = event.location.replace(" (Remote)", "").split(",").map { it.trim() }
+        val city = if (locationParts.isNotEmpty()) locationParts[0] else "Unknown"
+        val country = if (locationParts.size > 1) locationParts[1] else "Unknown"
+        location = Location(city, country, isRemote)
         status = PostingStatus.DRAFT
         createdAt = LocalDateTime.now()
     }
@@ -115,7 +107,12 @@ class InternshipPosting : AggregateRoot {
         company = CompanyName(event.company)
         description = Description(event.description)
         techStack = TechStack(event.techStack)
-        location = Location(event.location)
+        // Parse location string
+        val isRemote = event.location.contains("(Remote)")
+        val locationParts = event.location.replace(" (Remote)", "").split(",").map { it.trim() }
+        val city = if (locationParts.isNotEmpty()) locationParts[0] else "Unknown"
+        val country = if (locationParts.size > 1) locationParts[1] else "Unknown"
+        location = Location(city, country, isRemote)
         updatedAt = LocalDateTime.now()
     }
 
@@ -139,8 +136,7 @@ class InternshipPosting : AggregateRoot {
         updatedAt = LocalDateTime.now()
     }
 
-
-
+    // ==================== Status Enum ====================
 
     enum class PostingStatus {
         DRAFT, PUBLISHED, CLOSED;

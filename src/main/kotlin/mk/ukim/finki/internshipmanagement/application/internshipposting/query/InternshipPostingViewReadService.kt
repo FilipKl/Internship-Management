@@ -49,7 +49,7 @@ class InternshipPostingViewReadServiceImpl(
     override fun findAll(): List<InternshipPostingView> = viewRepository.findAll()
 
     override fun findById(id: InternshipPostingId): InternshipPostingView =
-        viewRepository.findById(id.toString()).orElseThrow { RuntimeException("Posting not found: $id") }
+        viewRepository.findById(id).orElseThrow { RuntimeException("Posting not found: $id") }
 
     override fun findByStatus(status: InternshipPosting.PostingStatus): List<InternshipPostingView> =
         viewRepository.findByStatus(status.name)
