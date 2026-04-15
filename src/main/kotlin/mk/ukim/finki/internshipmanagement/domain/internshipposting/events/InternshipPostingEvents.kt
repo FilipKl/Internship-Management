@@ -3,6 +3,7 @@ package mk.ukim.finki.internshipmanagement.domain.internshipposting.events
 import mk.ukim.finki.internshipmanagement.domain.common.AbstractEvent
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.InternshipPostingId
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.commands.*
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -32,16 +33,22 @@ data class InternshipPostingCreatedEvent(
     val title: String,
     val company: String,
     val description: String,
+    val postedDate: LocalDate,
+    val validUntil: LocalDate,
+    val location: String,
     val techStack: String,
-    val location: String
+    val contactEmail: String
 ) : InternshipPostingEvent(internshipPostingId) {
     constructor(command: CreateInternshipPostingCommand) : this(
         command.id,
         command.title,
         command.company,
         command.description,
+        command.postedDate,
+        command.validUntil,
+        command.location,
         command.techStack,
-        command.location
+        command.contactEmail
     )
 
     override fun toExternalEvent(): InternshipPostingCreatedExternalEvent {

@@ -7,6 +7,7 @@ import org.axonframework.eventsourcing.EventSourcingHandler
 import org.axonframework.modelling.command.AggregateIdentifier
 import org.axonframework.modelling.command.AggregateLifecycle
 import org.axonframework.spring.stereotype.Aggregate
+import java.time.LocalDate
 import java.time.LocalDateTime
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.JobTitle
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.CompanyName
@@ -41,6 +42,12 @@ class InternshipPosting {
     lateinit var location: Location
 
     lateinit var status: PostingStatus
+
+    lateinit var postedDate: LocalDate
+
+    lateinit var validUntil: LocalDate
+
+    var contactEmail: String = ""
 
     lateinit var createdAt: LocalDateTime
 
@@ -91,11 +98,14 @@ class InternshipPosting {
         company = CompanyName(event.company)
         description = Description(event.description)
         techStack = TechStack(event.techStack)
+        postedDate = event.postedDate
+        validUntil = event.validUntil
+        contactEmail = event.contactEmail
         // Parse location string - format: "city, country" or "city, country (Remote)"
         val isRemote = event.location.contains("(Remote)")
         val locationParts = event.location.replace(" (Remote)", "").split(",").map { it.trim() }
-        val city = if (locationParts.isNotEmpty()) locationParts[0] else "Unknown"
-        val country = if (locationParts.size > 1) locationParts[1] else "Unknown"
+        val city = if (locationParts.isNotEmpty() && locationParts[0].isNotBlank()) locationParts[0] else "Unknown"
+        val country = if (locationParts.size > 1 && locationParts[1].isNotBlank()) locationParts[1] else "Unknown"
         location = Location(city, country, isRemote)
         status = PostingStatus.DRAFT
         createdAt = LocalDateTime.now()
@@ -110,8 +120,8 @@ class InternshipPosting {
         // Parse location string
         val isRemote = event.location.contains("(Remote)")
         val locationParts = event.location.replace(" (Remote)", "").split(",").map { it.trim() }
-        val city = if (locationParts.isNotEmpty()) locationParts[0] else "Unknown"
-        val country = if (locationParts.size > 1) locationParts[1] else "Unknown"
+        val city = if (locationParts.isNotEmpty() && locationParts[0].isNotBlank()) locationParts[0] else "Unknown"
+        val country = if (locationParts.size > 1 && locationParts[1].isNotBlank()) locationParts[1] else "Unknown"
         location = Location(city, country, isRemote)
         updatedAt = LocalDateTime.now()
     }
