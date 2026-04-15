@@ -16,7 +16,7 @@ class InternshipJournalController(
 
     @GetMapping("/{id}")
     fun getById(@PathVariable id: String): InternshipJournalView {
-        val journalId = InternshipJournalId(id)
+        val journalId = InternshipJournalId(id = id)
         return readService.findById(journalId)
     }
 
