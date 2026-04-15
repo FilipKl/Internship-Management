@@ -11,6 +11,8 @@ import mk.ukim.finki.internshipmanagement.domain.internshipposting.Description
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.TechStack
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.Location
 import org.axonframework.spring.stereotype.Aggregate
+import org.axonframework.commandhandling.CommandHandler
+import org.axonframework.eventsourcing.EventSourcingHandler
 
 /**
  * InternshipPosting Aggregate Root
@@ -62,27 +64,32 @@ class InternshipPosting : AggregateRoot {
 
     // ==================== Command Handlers ====================
 
+    @CommandHandler
     constructor(command: CreateInternshipPostingCommand) {
         internshipPostingId = InternshipPostingId.generate()
         status = PostingStatus.DRAFT
         recordEvent(InternshipPostingCreatedEvent(command))
     }
 
+    @CommandHandler
     fun handle(command: UpdateInternshipPostingCommand) {
         check(status.canUpdate()) { "Cannot update internship posting in $status status" }
         recordEvent(InternshipPostingUpdatedEvent(command))
     }
 
+    @CommandHandler
     fun handle(command: EditInternshipPostingCommand) {
         check(status.canUpdate()) { "Cannot edit internship posting in $status status" }
         recordEvent(InternshipPostingEditedEvent(command))
     }
 
+    @CommandHandler
     fun handle(command: PublishInternshipPostingCommand) {
         check(status.canPublish()) { "Cannot publish internship posting in $status status" }
         recordEvent(InternshipPostingPublishedEvent(command))
     }
 
+    @CommandHandler
     fun handle(command: DeleteInternshipPostingCommand) {
         check(status.canClose()) { "Cannot delete internship posting in $status status" }
         recordEvent(InternshipPostingDeletedEvent(command))
@@ -90,6 +97,7 @@ class InternshipPosting : AggregateRoot {
 
     // ==================== Event Handlers ====================
 
+    @EventSourcingHandler
     fun on(event: InternshipPostingCreatedEvent) {
         internshipPostingId = event.internshipPostingId
         title = JobTitle(event.title)
@@ -101,6 +109,7 @@ class InternshipPosting : AggregateRoot {
         createdAt = LocalDateTime.now()
     }
 
+    @EventSourcingHandler
     fun on(event: InternshipPostingUpdatedEvent) {
         title = JobTitle(event.title)
         company = CompanyName(event.company)
@@ -110,6 +119,7 @@ class InternshipPosting : AggregateRoot {
         updatedAt = LocalDateTime.now()
     }
 
+    @EventSourcingHandler
     fun on(event: InternshipPostingEditedEvent) {
         title = JobTitle(event.title)
         description = Description(event.description)
@@ -117,11 +127,13 @@ class InternshipPosting : AggregateRoot {
         updatedAt = LocalDateTime.now()
     }
 
+    @EventSourcingHandler
     fun on(event: InternshipPostingPublishedEvent) {
         status = PostingStatus.PUBLISHED
         updatedAt = LocalDateTime.now()
     }
 
+    @EventSourcingHandler
     fun on(event: InternshipPostingDeletedEvent) {
         status = PostingStatus.CLOSED
         updatedAt = LocalDateTime.now()
