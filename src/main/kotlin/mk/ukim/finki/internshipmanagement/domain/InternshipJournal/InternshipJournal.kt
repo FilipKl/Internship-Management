@@ -68,6 +68,7 @@ class InternshipJournal : LabeledEntity,AggregateRoot {
 
     constructor()
 
+    @CommandHandler
     constructor(command: CreateInternshipJournalCommand) : super() {
         apply(InternshipJournalCreatedEvent(command))
     }

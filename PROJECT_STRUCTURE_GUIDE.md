@@ -1,77 +1,86 @@
-# Internship Management - Project Structure 
-
----
-
-## 📁 Project Directory Structure
+# Internship Management - Project Structure
 
 ```
 src/main/kotlin/mk/ukim/finki/internshipmanagement/
-├── domain/                          # Core business logic
-│   ├── common/                      # Shared domain abstractions
-│   │   ├── AbstractEvent.kt        # Base class for ALL events (Kafka-enabled)
-│   │   ├── AggregateRoot.kt        # Base class for all aggregates
-│   │   ├── DomainEvent.kt          # Base class for domain events
-│   │   ├── Identifier.kt           # Base class for value object IDs
-│   │   └── LabeledEntity.kt        # Base class for JPA entities
+├── domain/                                  # Core business logic
+│   ├── common/                              # Shared abstractions
+│   │   ├── AbstractEvent.kt                # Base class for ALL events (Kafka-enabled)
+│   │   ├── AggregateRoot.kt                # Base class for aggregates
+│   │   ├── DomainEvent.kt                  # Domain events base
+│   │   ├── Identifier.kt                   # Value object IDs
+│   │   └── LabeledEntity.kt                # JPA entities base
 │   │
-│   └── [AGGREGATE_NAME]/           # One folder per aggregate (e.g., journalentry)
-│       ├── [AggregateName].kt      # Aggregate root entity
-│       ├── [AggregateName]Id.kt    # Strongly-typed identifier (extends Identifier)
-│       ├── ValueObject1.kt         # Value objects (e.g., EntryContent, WeekNumber)
-│       ├── ValueObject2.kt
-│       ├── commands/               # Command classes (what we want to do)
-│       │   ├── Create[AggregateName]Command.kt
-│       │   ├── Update[AggregateName]Command.kt
-│       │   └── ...
-│       └── events/                 # Domain event classes (what happened)
-│           ├── [AggregateName]Event.kt          # Base event class (extends AbstractEvent)
-│           ├── [AggregateName]CreatedEvent.kt  # Publishable event with toExternalEvent()
-│           ├── [AggregateName]CreatedExternalEvent.kt  # External contract
-│           ├── [AggregateName]UpdatedEvent.kt
-│           └── ...
+│   └── [AGGREGATE_NAME]/                   # One folder per aggregate (InternshipJournal, journalentry, etc.)
+│       ├── [AggregateName].kt              # Aggregate root entity
+│       ├── [AggregateName]Id.kt            # Strongly-typed identifier
+│       ├── ValueObject1.kt, ValueObject2.kt # Value objects
+│       ├── commands/
+│       │   └── [AggregateName]Commands.kt  # Create, Update, Delete commands
+│       └── events/
+│           └── [AggregateName]Events.kt    # Domain events with toExternalEvent()
 │
-├── application/                     # Application services & use cases
+├── application/                             # Business logic & services
 │   └── [AGGREGATE_NAME]/
-│       ├── eventhandler/           # Event handlers (reactions to domain events)
-│       │   └── [AggregateName]EventHandler.kt
-│       ├── query/                  # Query services & read model
-│       │   ├── [AggregateName]View.kt          # Read model entity (@Immutable)
-│       │   ├── [AggregateName]ViewRepository.kt # JPA repository for read model
-│       │   └── [AggregateName]QueryService.kt  # Query service interface & impl
-│       └── exception/              # Aggregate-specific exceptions
+│       ├── [AggregateName]Service.kt       # Application service (some have cross-service validation)
+│       ├── eventhandler/
+│       │   ├── [AggregateName]EventHandler.kt       # Handles events from same aggregate
+│       │   └── [AggregateName]ViewEventHandler.kt   # Updates read model
+│       ├── query/
+│       │   ├── [AggregateName]View.kt
+│       │   ├── [AggregateName]ViewRepository.kt
+│       │   └── [AggregateName]QueryService.kt
+│       └── exception/
 │           └── [AggregateName]NotFoundException.kt
 │
-├── infrastructure/                  # Technical infrastructure
-│   ├── messaging/                   # Event publishing to Kafka (layered)
-│   │   ├── EventMessagingService.kt       # Service interface (hides Kafka)
-│   │   ├── EventMessagingRepository.kt    # Repository interface
-│   │   ├── impl/
-│   │   │   ├── EventMessagingServiceImpl.kt      # Service implementation
-│   │   │   └── KafkaMessagingRepositoryImpl.kt   # ONLY class with KafkaTemplate
-│   │   └── handlers/
-│   │       └── EventMessagingEventHandler.kt    # Generic handler for ALL events
+├── infrastructure/                          # Technical infrastructure
+│   ├── client/                              # Feign HTTP Clients
+│   │   ├── StudentManagementClient.kt       # GET /students/exists/{id}
+│   │   ├── ProfessorManagementClient.kt     # GET /professors/exists/{id}
+│   │   ├── config/
+│   │   │   ├── FeignConfig.kt
+│   │   │   └── FeignClientParameterResolverFactory.kt
+│   │   ├── fallbacks/                       # Circuit breaker fallbacks
+│   │   │   ├── StudentManagementClientFallback.kt
+│   │   │   └── ProfessorManagementClientFallback.kt
+│   │   └── interceptor/
+│   │       └── CorrelationIdInterceptor.kt
 │   │
-│   ├── kafka/                       # Event streaming & cross-service communication
-│   │   ├── KafkaConfig.kt          # Kafka beans & configuration
-│   │   ├── KafkaEventConsumer.kt   # Kafka message listener (consumer)
-│   │   ├── acl/                    # Anti-Corruption Layer (ACL)
-│   │   │   ├── ExternalDTOs.kt     # External DTOs from other services (defensive)
-│   │   │   └── PartnerEventTranslator.kt  # ACL translator (DTO → domain)
-│   │   └── KafkaEventPublisher.kt  # Legacy (replaced by EventMessagingEventHandler)
+│   ├── messaging/                           # Kafka publishing (layered)
+│   │   ├── EventMessagingService.kt         # Interface (hides Kafka)
+│   │   ├── EventMessagingRepository.kt      # Repository interface
+│   │   ├── impl/
+│   │   │   ├── EventMessagingServiceImpl.kt
+│   │   │   └── KafkaMessagingRepositoryImpl.kt  # Only Kafka-aware class
+│   │   └── handlers/
+│   │       └── EventMessagingEventHandler.kt # Generic handler for ALL events
+│   │
+│   ├── kafka/
+│   │   ├── KafkaConfig.kt
+│   │   ├── KafkaEventConsumer.kt
+│   │   └── acl/
+│   │       ├── ExternalDTOs.kt
+│   │       └── PartnerEventTranslator.kt
 │   │
 │   ├── persistence/
-│   │   ├── AxonJpaConfig.kt        # Axon Framework JPA configuration
-│   │   └── [AggregateName]RepositoryConfig.kt  # GenericJpaRepository bean config
+│   │   ├── AxonJpaConfig.kt
+│   │   ├── AxonRepositoryConfig.kt
+│   │   └── InternshipJournalRepositoryConfig.kt
 │   │
-│   └── repository/                 # Repository implementations
+│   └── repository/
+│       └── RepositoryConfiguration.kt
 │
-├── presentation/                    # REST API & HTTP layer
+├── presentation/                            # REST API & HTTP
 │   ├── common/
-│   │   └── exception/              # Global exception handling
-│   │       └── GlobalExceptionHandler.kt
-│   └── [AGGREGATE_NAME]/
-│       └── controller/             # REST controllers (GET endpoints only)
-│           └── [AggregateName]Controller.kt
+│   │   └── exception/
+│   │       └── GlobalExceptionHandler.kt    # Centralized error handling
+│   │
+│   ├── [AGGREGATE_NAME]/
+│   │   └── controller/
+│   │       ├── [AggregateName]CommandController.kt  # POST/PUT: commands (create, update, delete)
+│   │       └── [AggregateName]Controller.kt         # GET: queries (read model)
+│   │
+│   └── kafka/controller/
+│       └── KafkaManagementController.kt    # Kafka admin/debugging endpoints
 │
-└── InternshipManagementApplication.kt  # Spring Boot main application
+└── InternshipManagementApplication.kt       # @SpringBootApplication
 ```

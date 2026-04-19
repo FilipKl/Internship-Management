@@ -2,6 +2,8 @@ package mk.ukim.finki.internshipmanagement.presentation.common.exception
 
 import mk.ukim.finki.internshipmanagement.application.journalentry.exception.JournalEntryNotFoundException
 import mk.ukim.finki.internshipmanagement.application.internshipposting.exception.InternshipPostingNotFoundException
+import mk.ukim.finki.internshipmanagement.application.internshiprequest.exception.StudentNotFoundException
+import mk.ukim.finki.internshipmanagement.application.InternshipJournal.exception.ProfessorNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -48,6 +50,38 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body)
     }
     
+    @ExceptionHandler(StudentNotFoundException::class)
+    fun handleStudentNotFound(
+        ex: StudentNotFoundException,
+        request: WebRequest
+    ): ResponseEntity<Any> {
+        val body = linkedMapOf<String, Any>(
+            "timestamp" to LocalDateTime.now(),
+            "status" to HttpStatus.BAD_REQUEST.value(),
+            "error" to "Student Not Found",
+            "message" to (ex.message ?: "Student not found"),
+            "studentId" to ex.studentId.toString(),
+            "path" to request.getDescription(false).replace("uri=", "")
+        )
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body)
+    }
+
+    @ExceptionHandler(ProfessorNotFoundException::class)
+    fun handleProfessorNotFound(
+        ex: ProfessorNotFoundException,
+        request: WebRequest
+    ): ResponseEntity<Any> {
+        val body = linkedMapOf<String, Any>(
+            "timestamp" to LocalDateTime.now(),
+            "status" to HttpStatus.BAD_REQUEST.value(),
+            "error" to "Professor Not Found",
+            "message" to (ex.message ?: "Professor not found"),
+            "professorId" to ex.professorId.toString(),
+            "path" to request.getDescription(false).replace("uri=", "")
+        )
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body)
+    }
+
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgument(
         ex: IllegalArgumentException,
