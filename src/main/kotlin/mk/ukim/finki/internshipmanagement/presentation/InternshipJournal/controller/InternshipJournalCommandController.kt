@@ -1,5 +1,7 @@
 package mk.ukim.finki.internshipmanagement.presentation.InternshipJournal.controller
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.*
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.commands.*
 import org.antlr.v4.runtime.atn.ProfilingATNSimulator
@@ -12,16 +14,18 @@ import java.util.concurrent.CompletableFuture
 
 @RestController
 @RequestMapping("/internship-journal")
+@Tag(
+    name = "Internship Journal Commands",
+    description = "API for creating and managing internship journal lifecycle. Create journals, update status, add entries, and complete internships."
+)
 class InternshipJournalCommandController(
     private val commandGateway: CommandGateway
 ) {
 
-    /**
-     * Create a new internship journal
-     *
-     * @param request CreateInternshipJournalRequest containing company name, student ID, and professor ID
-     * @return ResponseEntity with the created journal ID
-     */
+    @Operation(
+        summary = "Create a new internship journal",
+        description = "Creates a new internship journal for a student to document their internship experience with a company."
+    )
     @PostMapping
     fun createInternshipJournal(
         @RequestBody request: CreateInternshipJournalRequest
@@ -43,13 +47,10 @@ class InternshipJournalCommandController(
         }
     }
 
-    /**
-     * Update the status of an internship journal (mark as ongoing or completed)
-     *
-     * @param id The journal ID
-     * @param request UpdateJournalStatusRequest containing the new status
-     * @return ResponseEntity indicating success or failure
-     */
+    @Operation(
+        summary = "Update journal status",
+        description = "Updates the status of an internship journal (mark as ongoing or completed)."
+    )
     @PutMapping("/{id}/status")
     fun updateJournalStatus(
         @PathVariable id: String,
@@ -69,13 +70,10 @@ class InternshipJournalCommandController(
         }
     }
 
-    /**
-     * Add a journal entry to the internship journal
-     *
-     * @param journalId The journal ID
-     * @param request AddJournalEntryRequest containing the entry ID
-     * @return ResponseEntity indicating success or failure
-     */
+    @Operation(
+        summary = "Add a journal entry",
+        description = "Adds a journal entry to an internship journal."
+    )
     @PostMapping("/{journalId}/entries")
     fun addJournalEntry(
         @PathVariable journalId: String,
@@ -95,12 +93,10 @@ class InternshipJournalCommandController(
         }
     }
 
-    /**
-     * Complete an internship journal
-     *
-     * @param id The journal ID
-     * @return ResponseEntity indicating success or failure
-     */
+    @Operation(
+        summary = "Complete an internship journal",
+        description = "Marks an internship journal as completed, finalizing the student's internship documentation."
+    )
     @PostMapping("/{id}/complete")
     fun completeInternshipJournal(
         @PathVariable id: String

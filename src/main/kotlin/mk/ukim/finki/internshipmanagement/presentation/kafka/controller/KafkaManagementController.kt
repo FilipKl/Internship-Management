@@ -2,6 +2,8 @@ package mk.ukim.finki.internshipmanagement.presentation.kafka.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.AdminClientConfig
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -26,6 +28,10 @@ import org.apache.kafka.clients.producer.RecordMetadata
  */
 @RestController
 @RequestMapping("/api/v1/kafka")
+@Tag(
+    name = "Kafka Management API",
+    description = "API for Kafka infrastructure management. Monitor Kafka health, publish test messages, and query broker information."
+)
 class KafkaManagementController(
     private val kafkaTemplate: KafkaTemplate<String, String>
 ) {
@@ -38,12 +44,10 @@ class KafkaManagementController(
     private val objectMapper = ObjectMapper()
         .registerModule(KotlinModule.Builder().build())
 
-    /**
-     * Health check endpoint for Kafka connectivity.
-     * Verifies that the application can connect to the Kafka broker.
-     *
-     * @return ResponseEntity with status "UP" if Kafka is reachable, "DOWN" otherwise
-     */
+    @Operation(
+        summary = "Check Kafka broker health",
+        description = "Verifies that the application can connect to the Kafka broker and returns cluster information."
+    )
     @GetMapping("/health")
     fun kafkaHealth(): ResponseEntity<Map<String, Any>> {
         return try {
@@ -72,13 +76,10 @@ class KafkaManagementController(
         }
     }
 
-    /**
-     * Publish a message to a specified Kafka topic.
-     *
-     * @param topicName The name of the topic to publish to
-     * @param request The request containing the message key and value
-     * @return ResponseEntity with the partition and offset of the published message
-     */
+    @Operation(
+        summary = "Publish a message to a Kafka topic",
+        description = "Publishes a plain text message to a specified Kafka topic with an optional message key."
+    )
     @PostMapping("/publish/{topicName}")
     fun publishMessage(
         @PathVariable topicName: String,
@@ -149,14 +150,10 @@ class KafkaManagementController(
         }
     }
 
-    /**
-     * Publish a JSON object as a message to a Kafka topic.
-     * The object is automatically serialized to JSON format.
-     *
-     * @param topicName The name of the topic to publish to
-     * @param request The request containing the message key and JSON payload
-     * @return ResponseEntity with the partition and offset of the published message
-     */
+    @Operation(
+        summary = "Publish a JSON message to a Kafka topic",
+        description = "Publishes a JSON object as a message to a specified Kafka topic with automatic serialization."
+    )
     @PostMapping("/publish-json/{topicName}")
     fun publishJsonMessage(
         @PathVariable topicName: String,
@@ -217,11 +214,10 @@ class KafkaManagementController(
         }
     }
 
-    /**
-     * Get information about Kafka broker connectivity.
-     *
-     * @return ResponseEntity with broker information
-     */
+    @Operation(
+        summary = "Get Kafka broker information",
+        description = "Retrieves information about the Kafka broker cluster, including broker nodes and IDs."
+    )
     @GetMapping("/info")
     fun getKafkaInfo(): ResponseEntity<Map<String, Any>> {
         return try {

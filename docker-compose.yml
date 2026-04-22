@@ -1,7 +1,26 @@
 version: '3.8'
 
 services:
-  # Kafka broker service
+  # PostgreSQL Database (internal network only)
+  internship_db:
+    image: postgres:16.1
+    container_name: internship_db
+    environment:
+      POSTGRES_DB: internship_management
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    # Port not exposed - database accessed only via internal network
+    volumes:
+      - internship_db_data:/var/lib/postgresql/data
+    networks:
+      - internship_services_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Kafka broker service (on shared network)
   broker:
     image: apache/kafka:latest
     hostname: broker
@@ -26,6 +45,8 @@ services:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     volumes:
       - broker_data:/var/lib/kafka/data
+    networks:
+      - shared_net
     healthcheck:
       test: kafka-broker-api-versions.sh --bootstrap-server localhost:9092
       interval: 5s
@@ -44,6 +65,8 @@ services:
       KAFKA_CLUSTERS_0_JMXPORT: 9101
     depends_on:
       - broker
+    networks:
+      - shared_net
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8080 || exit 1
       interval: 10s
@@ -62,13 +85,54 @@ services:
       AXONIQ_AXONSERVER_STANDALONE: "true"
     volumes:
       - axonserver_data:/axonserver/data
+    networks:
+      - shared_net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8024/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  # Internship Management Microservice
+  internship_app:
+    build:
+      context: .
+    container_name: internship_app
+    depends_on:
+      - internship_db
+      - broker
+      - axonserver
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://internship_db:5432/internship_management
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: broker:29092
+      AXON_AXONSERVER_SERVERS: axonserver:8124
+      STUDENT_MANAGEMENT_URL: http://student_app:8082
+      PROFESSOR_MANAGEMENT_URL: http://professor_app:8083
+    networks:
+      - internship_services_net
+      - shared_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/swagger-ui.html"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  internship_services_net:
+    name: internship_services_net
+    driver: bridge
+  shared_net:
+    name: shared_net
+    driver: bridge
+
 volumes:
+  internship_db_data:
+    driver: local
   broker_data:
     driver: local
   axonserver_data:

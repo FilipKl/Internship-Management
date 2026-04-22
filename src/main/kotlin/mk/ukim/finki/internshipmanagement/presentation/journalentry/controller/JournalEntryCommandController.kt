@@ -1,5 +1,7 @@
 package mk.ukim.finki.internshipmanagement.presentation.journalentry.controller
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import mk.ukim.finki.internshipmanagement.domain.journalentry.JournalEntryId
 import mk.ukim.finki.internshipmanagement.domain.journalentry.commands.*
 import org.axonframework.commandhandling.gateway.CommandGateway
@@ -14,20 +16,18 @@ import java.util.concurrent.CompletableFuture
  */
 @RestController
 @RequestMapping("/api/v1/journal-entries")
+@Tag(
+    name = "Journal Entry Commands",
+    description = "API for creating and modifying journal entry data. Create, edit, validate, and reject weekly internship journal entries."
+)
 class JournalEntryCommandController(
     private val commandGateway: CommandGateway
 ) {
 
-    /**
-     * Create a new JournalEntry (Add Weekly Entry).
-     * POST /api/v1/journal-entries
-     *
-     * Command Flow:
-     * CreateJournalEntryCommand → JournalEntryCreatedEvent → Read Model Updated
-     *
-     * @param request Contains journalId, titleText, and contentText
-     * @return Created entry ID
-     */
+    @Operation(
+        summary = "Create a new journal entry",
+        description = "Creates a new weekly journal entry within an internship journal."
+    )
     @PostMapping
     fun createEntry(@RequestBody request: CreateJournalEntryRequest): ResponseEntity<Map<String, String>> {
         val entryId = JournalEntryId.generate()
@@ -46,19 +46,10 @@ class JournalEntryCommandController(
         }
     }
 
-    /**
-     * Update JournalEntry title (Edit Entry).
-     * PATCH /api/v1/journal-entries/{id}/title
-     *
-     * Command Flow:
-     * UpdateEntryTitleCommand → EntryTitleUpdatedEvent → Read Model Updated
-     *
-     * Note: Only DRAFT entries can be edited
-     *
-     * @param id The JournalEntry ID
-     * @param request Contains new title text
-     * @return Success or error message
-     */
+    @Operation(
+        summary = "Update entry title",
+        description = "Updates the title of a journal entry. Only DRAFT entries can be edited."
+    )
     @PatchMapping("/{id}/title")
     fun updateTitle(
         @PathVariable id: String,
@@ -77,19 +68,10 @@ class JournalEntryCommandController(
         }
     }
 
-    /**
-     * Update JournalEntry content (Edit Entry).
-     * PATCH /api/v1/journal-entries/{id}/content
-     *
-     * Command Flow:
-     * UpdateEntryContentCommand → EntryContentUpdatedEvent → Read Model Updated
-     *
-     * Note: Only DRAFT entries can be edited
-     *
-     * @param id The JournalEntry ID
-     * @param request Contains new content text
-     * @return Success or error message
-     */
+    @Operation(
+        summary = "Update entry content",
+        description = "Updates the content of a journal entry. Only DRAFT entries can be edited."
+    )
     @PatchMapping("/{id}/content")
     fun updateContent(
         @PathVariable id: String,
@@ -108,19 +90,10 @@ class JournalEntryCommandController(
         }
     }
 
-    /**
-     * Validate a JournalEntry (Validate Entry).
-     * POST /api/v1/journal-entries/{id}/validate
-     *
-     * Command Flow:
-     * ValidateJournalEntryCommand → JournalEntryValidatedEvent → Entry status changes to VALIDATED
-     *
-     * Note: Only DRAFT entries can be validated
-     *
-     * @param id The JournalEntry ID
-     * @param request Contains validatedBy (reviewer ID)
-     * @return Success or error message
-     */
+    @Operation(
+        summary = "Validate a journal entry",
+        description = "Validates a journal entry, changing its status from DRAFT to VALIDATED. Only DRAFT entries can be validated."
+    )
     @PostMapping("/{id}/validate")
     fun validateEntry(
         @PathVariable id: String,
@@ -139,20 +112,10 @@ class JournalEntryCommandController(
         }
     }
 
-    /**
-     * Reject a JournalEntry (Reject Entry).
-     * POST /api/v1/journal-entries/{id}/reject
-     *
-     * Command Flow:
-     * RejectJournalEntryCommand → JournalEntryRejectedEvent → Entry status changes to REJECTED
-     *                                                       → Event handler notifies student (policy)
-     *
-     * Note: Only DRAFT entries can be rejected
-     *
-     * @param id The JournalEntry ID
-     * @param request Contains rejectedBy (reviewer ID) and rejectionReason
-     * @return Success or error message
-     */
+    @Operation(
+        summary = "Reject a journal entry",
+        description = "Rejects a journal entry, changing its status from DRAFT to REJECTED. Only DRAFT entries can be rejected."
+    )
     @PostMapping("/{id}/reject")
     fun rejectEntry(
         @PathVariable id: String,

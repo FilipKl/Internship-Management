@@ -1,5 +1,7 @@
 package mk.ukim.finki.internshipmanagement.presentation.internshiprequest.controller
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.CompanyId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.CoordinatorId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.DecisionDate
@@ -26,6 +28,10 @@ import java.time.LocalDate
  */
 @RestController
 @RequestMapping("/api/v1/internship-requests")
+@Tag(
+    name = "Internship Request Commands",
+    description = "API for creating and modifying internship request data. Submit requests, approve, reject, and update request details."
+)
 class InternshipRequestCommandController(
     private val commandGateway: CommandGateway
 ) {
@@ -36,6 +42,10 @@ class InternshipRequestCommandController(
     private fun toAggregateId(id: String): InternshipRequestId =
         InternshipRequestId.from(id)
 
+    @Operation(
+        summary = "Submit a new internship request",
+        description = "Submits a new internship request from a student to a coordinator for approval."
+    )
     @PostMapping
     fun submitRequest(@RequestBody request: SubmitInternshipRequestRequest): ResponseEntity<Map<String, String>> {
         val command = SubmitInternshipRequestCommand(
@@ -59,6 +69,10 @@ class InternshipRequestCommandController(
         }
     }
 
+    @Operation(
+        summary = "Approve an internship request",
+        description = "Approves a pending internship request, changing its status from SUBMITTED to APPROVED."
+    )
     @PostMapping("/{id}/approve")
     fun approve(@PathVariable id: String): ResponseEntity<Map<String, String>> {
         val command = ApproveInternshipRequestCommand(
@@ -73,6 +87,10 @@ class InternshipRequestCommandController(
         }
     }
 
+    @Operation(
+        summary = "Reject an internship request",
+        description = "Rejects a pending internship request, changing its status from SUBMITTED to REJECTED."
+    )
     @PostMapping("/{id}/reject")
     fun reject(@PathVariable id: String): ResponseEntity<Map<String, String>> {
         val command = RejectInternshipRequestCommand(
@@ -87,6 +105,10 @@ class InternshipRequestCommandController(
         }
     }
 
+    @Operation(
+        summary = "Update the assigned coordinator",
+        description = "Updates the coordinator assigned to an internship request."
+    )
     @PostMapping("/{id}/coordinator")
     fun updateCoordinator(
         @PathVariable id: String,
@@ -105,6 +127,10 @@ class InternshipRequestCommandController(
         }
     }
 
+    @Operation(
+        summary = "Update the internship ID",
+        description = "Updates the internship ID associated with an internship request."
+    )
     @PostMapping("/{id}/internship")
     fun updateInternship(
         @PathVariable id: String,
@@ -123,6 +149,10 @@ class InternshipRequestCommandController(
         }
     }
 
+    @Operation(
+        summary = "Update the decision date",
+        description = "Updates the date when the coordinator made the approval or rejection decision."
+    )
     @PostMapping("/{id}/decision-date")
     fun updateDecisionDate(
         @PathVariable id: String,

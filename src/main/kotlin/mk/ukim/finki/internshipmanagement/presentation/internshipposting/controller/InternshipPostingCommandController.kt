@@ -1,5 +1,7 @@
 package mk.ukim.finki.internshipmanagement.presentation.internshipposting.controller
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.InternshipPostingId
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.commands.*
 import org.axonframework.commandhandling.gateway.CommandGateway
@@ -17,20 +19,18 @@ import jakarta.validation.constraints.*
  */
 @RestController
 @RequestMapping("/api/v1/internship-postings")
+@Tag(
+    name = "Internship Posting Commands",
+    description = "API for creating and modifying internship posting data. Submit commands to create, update, publish, or delete postings."
+)
 class InternshipPostingCommandController(
     private val commandGateway: CommandGateway
 ) {
 
-    /**
-     * Create a new InternshipPosting.
-     * POST /api/v1/internship-postings
-     *
-     * Command Flow:
-     * CreateInternshipPostingCommand → InternshipPostingCreatedEvent → Read Model Updated
-     *
-     * @param request Contains posting details (title, company, description, dates, location, techStack, contactEmail)
-     * @return Created posting ID
-     */
+    @Operation(
+        summary = "Create a new internship posting",
+        description = "Submits a CreateInternshipPostingCommand to create a new internship posting in DRAFT status."
+    )
     @PostMapping
     fun createPosting(@Valid @RequestBody request: CreateInternshipPostingRequest): ResponseEntity<Map<String, String>> {
         return try {
@@ -55,17 +55,10 @@ class InternshipPostingCommandController(
         }
     }
 
-    /**
-     * Update an existing InternshipPosting.
-     * PUT /api/v1/internship-postings/{id}
-     *
-     * Command Flow:
-     * UpdateInternshipPostingCommand → InternshipPostingUpdatedEvent → Read Model Updated
-     *
-     * @param id The InternshipPosting ID
-     * @param request Contains updated posting details
-     * @return Success or error message
-     */
+    @Operation(
+        summary = "Update an internship posting",
+        description = "Updates an existing internship posting with new details (title, company, description, location, tech stack, contact email)."
+    )
     @PutMapping("/{id}")
     fun updatePosting(
         @PathVariable id: String,
@@ -91,17 +84,10 @@ class InternshipPostingCommandController(
         }
     }
 
-    /**
-     * Edit an InternshipPosting (limited fields).
-     * PATCH /api/v1/internship-postings/{id}/edit
-     *
-     * Command Flow:
-     * EditInternshipPostingCommand → InternshipPostingEditedEvent → Read Model Updated
-     *
-     * @param id The InternshipPosting ID
-     * @param request Contains title, description, and techStack
-     * @return Success or error message
-     */
+    @Operation(
+        summary = "Edit an internship posting (limited fields)",
+        description = "Edits specific fields (title, description, technology stack) of an existing internship posting."
+    )
     @PatchMapping("/{id}/edit")
     fun editPosting(
         @PathVariable id: String,
@@ -123,17 +109,10 @@ class InternshipPostingCommandController(
         }
     }
 
-    /**
-     * Publish an InternshipPosting.
-     * POST /api/v1/internship-postings/{id}/publish
-     *
-     * Command Flow:
-     * PublishInternshipPostingCommand → InternshipPostingPublishedEvent → Posting status changes to PUBLISHED
-     *
-     * @param id The InternshipPosting ID
-     * @param request Contains publishedBy (user ID)
-     * @return Success or error message
-     */
+    @Operation(
+        summary = "Publish an internship posting",
+        description = "Publishes an internship posting, making it visible to students. Changes status from DRAFT to PUBLISHED."
+    )
     @PostMapping("/{id}/publish")
     fun publishPosting(
         @PathVariable id: String,
@@ -153,16 +132,10 @@ class InternshipPostingCommandController(
         }
     }
 
-    /**
-     * Delete an InternshipPosting.
-     * DELETE /api/v1/internship-postings/{id}
-     *
-     * Command Flow:
-     * DeleteInternshipPostingCommand → InternshipPostingDeletedEvent → Posting is removed
-     *
-     * @param id The InternshipPosting ID
-     * @return Success or error message
-     */
+    @Operation(
+        summary = "Delete an internship posting",
+        description = "Deletes an internship posting from the system. Once deleted, the posting is no longer visible to students."
+    )
     @DeleteMapping("/{id}")
     fun deletePosting(@PathVariable id: String): ResponseEntity<Map<String, String>> {
         return try {
