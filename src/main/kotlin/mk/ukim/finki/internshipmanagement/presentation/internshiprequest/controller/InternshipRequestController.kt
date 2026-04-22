@@ -21,7 +21,7 @@ class InternshipRequestController(
 
     @GetMapping("/{id}")
     fun findById(@PathVariable id: String): InternshipRequestView {
-        return queryService.findById(InternshipRequestId(id))
+        return queryService.findById(InternshipRequestId.from(id))
     }
 
     @GetMapping("/by-status/{status}")

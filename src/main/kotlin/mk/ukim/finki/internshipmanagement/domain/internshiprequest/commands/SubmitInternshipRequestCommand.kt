@@ -5,10 +5,9 @@ import mk.ukim.finki.internshipmanagement.domain.internshiprequest.CompanyId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.InternshipId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.CoordinatorId
 import java.time.LocalDate
-import java.util.UUID
 
 data class SubmitInternshipRequestCommand(
-    val internshipRequestId: InternshipRequestId = InternshipRequestId(UUID.randomUUID()),
+    val internshipRequestId: InternshipRequestId = InternshipRequestId.generate(),
     val studentId: StudentId,
     val companyId: CompanyId,
     val internshipId: InternshipId,

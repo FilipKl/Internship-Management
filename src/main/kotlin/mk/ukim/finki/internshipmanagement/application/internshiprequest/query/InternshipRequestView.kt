@@ -18,7 +18,7 @@ import java.time.LocalDate
 @Immutable
 data class InternshipRequestView(
     @EmbeddedId
-    @AttributeOverride(name = "value", column = Column(name = "id"))
+    @AttributeOverride(name = "id", column = Column(name = "id"))
     val internshipRequestId: InternshipRequestId = InternshipRequestId(),
 
     @Embedded
