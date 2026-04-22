@@ -17,9 +17,9 @@ import java.time.LocalDate
 class InternshipRequest : LabeledEntity {
 
     @AggregateIdentifier
-    @EmbeddedId
-    @AttributeOverride(name = "raw", column = Column(name = "id"))
-    private lateinit var internshipRequestId: InternshipRequestId
+    @Id
+    @Column(name = "id", nullable = false, updatable = false)
+    private lateinit var internshipRequestId: String
 
     @Embedded
     @AttributeOverride(name = "value", column = Column(name = "student_id"))
@@ -36,6 +36,8 @@ class InternshipRequest : LabeledEntity {
     @Embedded
     @AttributeOverride(name = "value", column = Column(name = "coordinator_id"))
     private lateinit var coordinatorId: CoordinatorId
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private lateinit var status: InternshipRequestStatus
     private lateinit var dateOfCreation: LocalDate
 
@@ -53,7 +55,7 @@ class InternshipRequest : LabeledEntity {
 
     @EventSourcingHandler
     fun on(event: InternshipRequestSubmittedEvent) {
-        this.internshipRequestId = event.internshipRequestId
+        this.internshipRequestId = event.internshipRequestId.getValue().toString()
         this.studentId = event.studentId
         this.companyId = event.companyId
         this.internshipId = event.internshipId
@@ -62,7 +64,7 @@ class InternshipRequest : LabeledEntity {
         this.dateOfCreation = event.dateOfCreation
     }
 
-    override fun getId(): Identifier<out Any> = internshipRequestId
+    override fun getId(): Identifier<out Any> = InternshipRequestId.from(internshipRequestId)
     override fun getLabel(): String = "InternshipRequest(${internshipRequestId})"
 
     @CommandHandler

@@ -1,6 +1,5 @@
 package mk.ukim.finki.internshipmanagement.presentation.internshiprequest.controller
 
-import mk.ukim.finki.internshipmanagement.application.internshiprequest.SubmitInternshipRequestService
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.CompanyId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.CoordinatorId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.DecisionDate
@@ -28,9 +27,14 @@ import java.time.LocalDate
 @RestController
 @RequestMapping("/api/v1/internship-requests")
 class InternshipRequestCommandController(
-    private val submitInternshipRequestService: SubmitInternshipRequestService,
     private val commandGateway: CommandGateway
 ) {
+
+    private fun toClientId(id: InternshipRequestId): String =
+        id.toString()
+
+    private fun toAggregateId(id: String): InternshipRequestId =
+        InternshipRequestId.from(id)
 
     @PostMapping
     fun submitRequest(@RequestBody request: SubmitInternshipRequestRequest): ResponseEntity<Map<String, String>> {
@@ -43,10 +47,10 @@ class InternshipRequestCommandController(
         )
 
         return try {
-            submitInternshipRequestService.submitWithValidation(command)
+            commandGateway.sendAndWait<Any>(command)
             ResponseEntity.ok(
                 mapOf(
-                    "internshipRequestId" to command.internshipRequestId.toString(),
+                    "internshipRequestId" to toClientId(command.internshipRequestId),
                     "status" to "SUBMITTED"
                 )
             )
@@ -58,7 +62,7 @@ class InternshipRequestCommandController(
     @PostMapping("/{id}/approve")
     fun approve(@PathVariable id: String): ResponseEntity<Map<String, String>> {
         val command = ApproveInternshipRequestCommand(
-            internshipRequestId = InternshipRequestId(id)
+            internshipRequestId = toAggregateId(id)
         )
 
         return try {
@@ -72,7 +76,7 @@ class InternshipRequestCommandController(
     @PostMapping("/{id}/reject")
     fun reject(@PathVariable id: String): ResponseEntity<Map<String, String>> {
         val command = RejectInternshipRequestCommand(
-            internshipRequestId = InternshipRequestId(id)
+            internshipRequestId = toAggregateId(id)
         )
 
         return try {
@@ -89,7 +93,7 @@ class InternshipRequestCommandController(
         @RequestBody request: UpdateCoordinatorRequest
     ): ResponseEntity<Map<String, String>> {
         val command = UpdateCoordinatorCommand(
-            internshipRequestId = InternshipRequestId(id),
+            internshipRequestId = toAggregateId(id),
             coordinatorId = CoordinatorId(request.coordinatorId)
         )
 
@@ -107,7 +111,7 @@ class InternshipRequestCommandController(
         @RequestBody request: UpdateInternshipRequest
     ): ResponseEntity<Map<String, String>> {
         val command = UpdateInternshipIdCommand(
-            internshipRequestId = InternshipRequestId(id),
+            internshipRequestId = toAggregateId(id),
             internshipId = InternshipId(request.internshipId)
         )
 
@@ -125,7 +129,7 @@ class InternshipRequestCommandController(
         @RequestBody request: UpdateDecisionDateRequest
     ): ResponseEntity<Map<String, String>> {
         val command = UpdateDateOfDecisionCommand(
-            internshipRequestId = InternshipRequestId(id),
+            internshipRequestId = toAggregateId(id),
             dateOfDecision = DecisionDate(request.dateOfDecision)
         )
 
