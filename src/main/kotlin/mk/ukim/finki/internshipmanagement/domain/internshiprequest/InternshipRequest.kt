@@ -18,7 +18,7 @@ class InternshipRequest : LabeledEntity {
 
     @AggregateIdentifier
     @EmbeddedId
-    @AttributeOverride(name = "value", column = Column(name = "id"))
+    @AttributeOverride(name = "raw", column = Column(name = "id"))
     private lateinit var internshipRequestId: InternshipRequestId
 
     @Embedded
