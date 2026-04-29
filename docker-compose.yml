@@ -93,6 +93,22 @@ services:
       timeout: 5s
       retries: 5
 
+  # Consul Service Registry for service discovery
+  consul:
+    image: hashicorp/consul:1.18
+    container_name: consul
+    command: "agent -dev -client=0.0.0.0 -ui"
+    ports:
+      - "8500:8500"        # HTTP API and UI
+      - "8600:8600/udp"    # DNS interface
+    networks:
+      - shared_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8500/v1/status/leader"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Internship Management Microservice
   internship_app:
     build:
@@ -102,8 +118,9 @@ services:
       - internship_db
       - broker
       - axonserver
+      - consul
     ports:
-      - "8081:8081"
+      - "8082:8082"
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:postgresql://internship_db:5432/internship_management
@@ -111,13 +128,13 @@ services:
       SPRING_DATASOURCE_PASSWORD: admin
       SPRING_KAFKA_BOOTSTRAP_SERVERS: broker:29092
       AXON_AXONSERVER_SERVERS: axonserver:8124
-      STUDENT_MANAGEMENT_URL: http://student_app:8082
-      PROFESSOR_MANAGEMENT_URL: http://professor_app:8083
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
     networks:
       - internship_services_net
       - shared_net
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/swagger-ui.html"]
+      test: ["CMD", "curl", "-f", "http://localhost:8082/swagger-ui.html"]
       interval: 10s
       timeout: 5s
       retries: 5

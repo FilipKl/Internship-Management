@@ -10,12 +10,16 @@ import org.springframework.web.bind.annotation.PathVariable
  * Feign HTTP client for calling the Student Management service.
  * Provides declarative HTTP calls without boilerplate WebClient code.
  *
+ * Service discovery is handled by Consul — no hardcoded URLs needed.
+ * The name "student-management" is used to query Consul for available instances.
+ * When multiple instances exist, Spring Cloud's load balancer automatically
+ * distributes requests across them.
+ *
  * The circuit breaker is automatically managed via Resilience4j.
  * If the target service is down, the fallback is invoked immediately.
  */
 @FeignClient(
     name = "student-management",
-    url = "\${student-management.url}",
     fallback = StudentManagementClientFallback::class
 )
 interface StudentManagementClient {

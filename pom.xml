@@ -150,6 +150,19 @@
             <version>1.10.0</version>
         </dependency>
 
+        <!-- Consul Service Discovery -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-consul-all</artifactId>
+            <version>4.2.1</version>
+        </dependency>
+
+        <!-- Actuator (for health endpoint that Consul uses for health checks) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
