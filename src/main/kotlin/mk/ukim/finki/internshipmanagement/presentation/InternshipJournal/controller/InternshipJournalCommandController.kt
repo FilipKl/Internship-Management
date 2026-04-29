@@ -2,18 +2,29 @@ package mk.ukim.finki.internshipmanagement.presentation.InternshipJournal.contro
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.*
-import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.commands.*
-import org.antlr.v4.runtime.atn.ProfilingATNSimulator
+import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.CompanyName
+import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.InternshipJournalId
+import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.JournalEntryId
+import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.ProfessorId
+import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.StudentId
+import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.commands.AddJournalEntryCommand
+import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.commands.CompleteInternshipJournalCommand
+import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.commands.CreateInternshipJournalCommand
+import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.commands.UpdateJournalStatusCommand
 import org.axonframework.commandhandling.gateway.CommandGateway
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
-import java.util.UUID
-import java.util.concurrent.CompletableFuture
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
+/**
+ * REST controller for InternshipJournal write-side operations.
+ */
 @RestController
-@RequestMapping("/internship-journal")
+@RequestMapping("/api/v1/internship-journals")
 @Tag(
     name = "Internship Journal Commands",
     description = "API for creating and managing internship journal lifecycle. Create journals, update status, add entries, and complete internships."
@@ -21,6 +32,12 @@ import java.util.concurrent.CompletableFuture
 class InternshipJournalCommandController(
     private val commandGateway: CommandGateway
 ) {
+
+    private fun toClientId(id: InternshipJournalId): String =
+        id.toString()
+
+    private fun toAggregateId(id: String): InternshipJournalId =
+        InternshipJournalId.from(id)
 
     @Operation(
         summary = "Create a new internship journal",
@@ -30,20 +47,19 @@ class InternshipJournalCommandController(
     fun createInternshipJournal(
         @RequestBody request: CreateInternshipJournalRequest
     ): ResponseEntity<Map<String, String>> {
+        val journalId = InternshipJournalId.generate()
         val command = CreateInternshipJournalCommand(
-            id = InternshipJournalId.generate(),
+            id = journalId,
             companyName = CompanyName(request.companyName),
             studentId = StudentId(request.studentId),
             professorId = ProfessorId(request.professorId)
         )
 
         return try {
-            commandGateway.sendAndWait<InternshipJournalId>(command)
-            ResponseEntity.status(HttpStatus.CREATED)
-                .body(mapOf("id" to command.id.getValue()))
+            commandGateway.sendAndWait<Any>(command)
+            ResponseEntity.ok(mapOf("internshipJournalId" to toClientId(journalId), "status" to "ACTIVE"))
         } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("error" to (e.message ?: "Failed to create journal")))
+            ResponseEntity.badRequest().body(mapOf("error" to (e.message ?: "Failed to create journal")))
         }
     }
 
@@ -57,16 +73,15 @@ class InternshipJournalCommandController(
         @RequestBody request: UpdateJournalStatusRequest
     ): ResponseEntity<Map<String, String>> {
         val command = UpdateJournalStatusCommand(
-            id = InternshipJournalId(id),
+            id = toAggregateId(id),
             isOngoing = request.isOngoing
         )
 
         return try {
-            commandGateway.sendAndWait<Void>(command)
-            ResponseEntity.ok(mapOf("message" to "Journal status updated successfully"))
+            commandGateway.sendAndWait<Any>(command)
+            ResponseEntity.ok(mapOf("status" to "Journal status updated successfully"))
         } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("error" to (e.message ?: "Failed to update journal status")))
+            ResponseEntity.badRequest().body(mapOf("error" to (e.message ?: "Failed to update journal status")))
         }
     }
 
@@ -80,16 +95,15 @@ class InternshipJournalCommandController(
         @RequestBody request: AddJournalEntryRequest
     ): ResponseEntity<Map<String, String>> {
         val command = AddJournalEntryCommand(
-            journalId = InternshipJournalId(journalId),
+            journalId = toAggregateId(journalId),
             entryId = JournalEntryId(request.entryId)
         )
 
         return try {
-            commandGateway.sendAndWait<Void>(command)
-            ResponseEntity.ok(mapOf("message" to "Journal entry added successfully"))
+            commandGateway.sendAndWait<Any>(command)
+            ResponseEntity.ok(mapOf("status" to "Journal entry added successfully"))
         } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("error" to (e.message ?: "Failed to add journal entry")))
+            ResponseEntity.badRequest().body(mapOf("error" to (e.message ?: "Failed to add journal entry")))
         }
     }
 
@@ -102,30 +116,39 @@ class InternshipJournalCommandController(
         @PathVariable id: String
     ): ResponseEntity<Map<String, String>> {
         val command = CompleteInternshipJournalCommand(
-            id = InternshipJournalId(id)
+            id = toAggregateId(id)
         )
 
         return try {
-            commandGateway.sendAndWait<Void>(command)
-            ResponseEntity.ok(mapOf("message" to "Internship journal completed successfully"))
+            commandGateway.sendAndWait<Any>(command)
+            ResponseEntity.ok(mapOf("status" to "Internship journal completed successfully"))
         } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("error" to (e.message ?: "Failed to complete journal")))
+            ResponseEntity.badRequest().body(mapOf("error" to (e.message ?: "Failed to complete journal")))
         }
     }
 }
 
-// Request DTOs
+// ====== Request DTOs ======
+
+/**
+ * Request DTO for creating a new InternshipJournal
+ */
 data class CreateInternshipJournalRequest(
     val companyName: String,
-    val studentId: UUID,
-    val professorId: UUID
+    val studentId: String,
+    val professorId: String
 )
 
+/**
+ * Request DTO for updating journal status
+ */
 data class UpdateJournalStatusRequest(
     val isOngoing: Boolean
 )
 
+/**
+ * Request DTO for adding a journal entry
+ */
 data class AddJournalEntryRequest(
     val entryId: String
 )
