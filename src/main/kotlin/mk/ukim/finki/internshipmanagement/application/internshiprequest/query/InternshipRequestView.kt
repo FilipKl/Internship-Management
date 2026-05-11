@@ -4,7 +4,7 @@ import jakarta.persistence.*
 import mk.ukim.finki.internshipmanagement.domain.common.Identifier
 import mk.ukim.finki.internshipmanagement.domain.common.LabeledEntity
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.DecisionDate
-import mk.ukim.finki.internshipmanagement.domain.internshiprequest.StudentId
+import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.StudentId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.CompanyId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.InternshipId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.CoordinatorId

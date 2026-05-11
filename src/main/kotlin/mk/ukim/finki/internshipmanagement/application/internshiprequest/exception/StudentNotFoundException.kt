@@ -1,6 +1,6 @@
 package mk.ukim.finki.internshipmanagement.application.internshiprequest.exception
 
-import mk.ukim.finki.internshipmanagement.domain.internshiprequest.StudentId
+import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.StudentId
 
 /**
  * Thrown when InternshipRequest creation is attempted with a StudentId

@@ -4,6 +4,7 @@ import mk.ukim.finki.internshipmanagement.domain.common.LabeledEntity
 import mk.ukim.finki.internshipmanagement.domain.common.Identifier
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.commands.*
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.events.*
+import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.StudentId
 import org.axonframework.commandhandling.CommandHandler
 import org.axonframework.eventsourcing.EventSourcingHandler
 import org.axonframework.modelling.command.AggregateIdentifier

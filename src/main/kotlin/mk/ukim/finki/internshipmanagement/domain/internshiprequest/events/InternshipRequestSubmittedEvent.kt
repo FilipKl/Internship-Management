@@ -1,6 +1,6 @@
 package mk.ukim.finki.internshipmanagement.domain.internshiprequest.events
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.InternshipRequestId
-import mk.ukim.finki.internshipmanagement.domain.internshiprequest.StudentId
+import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.StudentId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.CompanyId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.InternshipId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.CoordinatorId

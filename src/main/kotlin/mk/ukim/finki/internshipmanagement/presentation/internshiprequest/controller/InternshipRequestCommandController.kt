@@ -7,7 +7,7 @@ import mk.ukim.finki.internshipmanagement.domain.internshiprequest.CoordinatorId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.DecisionDate
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.InternshipId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.InternshipRequestId
-import mk.ukim.finki.internshipmanagement.domain.internshiprequest.StudentId
+import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.StudentId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.commands.ApproveInternshipRequestCommand
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.commands.RejectInternshipRequestCommand
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.commands.SubmitInternshipRequestCommand
