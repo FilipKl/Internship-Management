@@ -5,6 +5,8 @@ services:
   internship_db:
     image: postgres:16.1
     container_name: internship_db
+    ports:
+      - "5437:5432"
     environment:
       POSTGRES_DB: internship_management
       POSTGRES_USER: postgres
@@ -120,7 +122,7 @@ services:
       - axonserver
       - consul
     ports:
-      - "8082:8082"
+      - "8086:8086"
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:postgresql://internship_db:5432/internship_management
@@ -134,7 +136,7 @@ services:
       - internship_services_net
       - shared_net
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8082/swagger-ui.html"]
+      test: ["CMD", "curl", "-f", "http://localhost:8086/swagger-ui.html"]
       interval: 10s
       timeout: 5s
       retries: 5
