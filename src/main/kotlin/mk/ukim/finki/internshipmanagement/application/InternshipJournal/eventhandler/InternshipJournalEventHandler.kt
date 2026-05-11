@@ -17,7 +17,6 @@ class IncomingEventHandler(
 ) {
 
 
-    //TO DO: FIX WHEN MERGED IMPORT EVENTS FROM OTHER AGGREGATES.
     @EventHandler
     fun on(event: InternshipJournalCreatedEvent) {
 
@@ -30,7 +29,6 @@ class IncomingEventHandler(
 
         commandGateway.sendAndWait<Any>(command)
     }
-  // Ordering matter cause if we used send we could have a situation where we are trying to add journal entries but we don't have a journal created.
 
     @EventHandler
     fun handle(event: JournalEntryAddedEvent) {
@@ -47,6 +45,5 @@ class IncomingEventHandler(
 
     }
 
-    //InternshipJournalCreatedEvent whenever I create an internship journal, I want you to use this as a trigger to create your journal entries.
 }
 

@@ -1,6 +1,5 @@
 package mk.ukim.finki.internshipmanagement.presentation.InternshipJournal.controller
 
-
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import mk.ukim.finki.internshipmanagement.application.InternshipJournal.query.*
@@ -8,7 +7,7 @@ import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.*
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/internship-journal")
+@RequestMapping("/api/v1/internship-journals")
 @Tag(
     name = "Internship Journal Query API",
     description = "API for querying internship journal data. Browse journals by ID and status."
@@ -21,7 +20,7 @@ class InternshipJournalController(
         summary = "Get all internship journals",
         description = "Retrieves all internship journals in the system."
     )
-    @GetMapping("/all")
+    @GetMapping
     fun getAll(): List<InternshipJournalView> = readService.findAll()
 
     @Operation(
@@ -44,3 +43,4 @@ class InternshipJournalController(
         return readService.findByStatus(enumStatus)
     }
 }
+

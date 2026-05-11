@@ -1,6 +1,8 @@
 package mk.ukim.finki.internshipmanagement.domain.InternshipJournal
 
 import jakarta.persistence.*
+import mk.ukim.finki.internshipmanagement.application.InternshipJournal.exception.ProfessorNotFoundException
+import mk.ukim.finki.internshipmanagement.application.InternshipJournal.exception.StudentNotFoundException
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.commands.AddJournalEntryCommand
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.commands.CompleteInternshipJournalCommand
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.commands.CreateInternshipJournalCommand
@@ -11,6 +13,8 @@ import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.events.Journa
 import mk.ukim.finki.internshipmanagement.domain.InternshipJournal.events.JournalStatusUpdatedEvent
 import mk.ukim.finki.internshipmanagement.domain.common.AggregateRoot
 import mk.ukim.finki.internshipmanagement.domain.common.LabeledEntity
+import mk.ukim.finki.internshipmanagement.infrastructure.client.ProfessorManagementClient
+import mk.ukim.finki.internshipmanagement.infrastructure.client.StudentManagementClient
 import org.axonframework.commandhandling.CommandHandler
 import org.axonframework.eventsourcing.EventSourcingHandler
 import org.axonframework.modelling.command.AggregateIdentifier
@@ -68,8 +72,35 @@ class InternshipJournal : LabeledEntity,AggregateRoot {
 
     constructor()
 
+    /**
+     * Create a new InternshipJournal with cross-service validation.
+     *
+     * Axon automatically injects Spring beans (ProfessorManagementClient, StudentManagementClient)
+     * as parameters. Validation happens BEFORE event creation.
+     *
+     * @param command The create journal command
+     * @param professorClient Injected by Axon for professor validation
+     * @param studentClient Injected by Axon for student validation
+     * @throws ProfessorNotFoundException if professor doesn't exist
+     * @throws StudentNotFoundException if student doesn't exist
+     */
     @CommandHandler
-    constructor(command: CreateInternshipJournalCommand) : super() {
+    constructor(
+        command: CreateInternshipJournalCommand,
+        professorClient: ProfessorManagementClient,
+        studentClient: StudentManagementClient
+    ) : super() {
+        // Step 1: Validate professor exists in external service
+        if (!professorClient.existsProfessor(command.professorId)) {
+            throw ProfessorNotFoundException(command.professorId)
+        }
+
+        // Step 2: Validate student exists in external service
+        if (!studentClient.existsStudent(command.studentId)) {
+            throw StudentNotFoundException(command.studentId)
+        }
+
+        // Step 3: Validation passed — create the event and apply it
         apply(InternshipJournalCreatedEvent(command))
     }
 

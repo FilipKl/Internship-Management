@@ -1,6 +1,5 @@
 package mk.ukim.finki.internshipmanagement.infrastructure.client
 
-import mk.ukim.finki.internshipmanagement.domain.internshiprequest.StudentId
 import mk.ukim.finki.internshipmanagement.infrastructure.client.fallbacks.StudentManagementClientFallback
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.GetMapping
@@ -31,6 +30,6 @@ interface StudentManagementClient {
      * @return true if the student exists, false otherwise
      */
     @GetMapping("/students/exists/{id}")
-    fun existsStudent(@PathVariable id: StudentId): Boolean
+    fun existsStudent(@PathVariable id: mk.ukim.finki.internshipmanagement.domain.InternshipJournal.StudentId): Boolean
 }
 

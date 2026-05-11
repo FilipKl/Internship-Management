@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.time.LocalDateTime
 
 /**
- * Anti-Corruption Layer: External DTOs
- *
- * These DTOs represent the shape of events coming FROM other bounded contexts
- * (like PartnersManagement). They are NOT domain objects, but rather defensive
- * representations of someone else's model.
- *
- * Using @JsonIgnoreProperties(ignoreUnknown = true) makes these DTOs resilient
+ *  * Anti-Corruption Layer: External DTOs
+ *  *
+ *  * These DTOs represent the shape of events coming FROM other bounded contexts
+ *  * (like PartnersManagement). They are NOT domain objects, but rather defensive
+ *  * representations of someone else's model.
+ *  *
+ *  * Using @JsonIgnoreProperties(ignoreUnknown = true) makes these DTOs resilient
  * to schema evolution: if the external service adds new fields, this service won't break.
  *
  * Nullable fields indicate fields that this service doesn't care about.
