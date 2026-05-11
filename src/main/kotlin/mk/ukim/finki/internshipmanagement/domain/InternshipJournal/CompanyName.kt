@@ -8,4 +8,3 @@ data class CompanyName(val value: String = "") {
     override fun toString(): String = value
 }
 
-git
