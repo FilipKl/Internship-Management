@@ -1,0 +1,4 @@
+# This directory will contain Keycloak realm exports
+# After configuring the realm in Part 5, export it here using:
+# docker exec -it keycloak /opt/keycloak/bin/kc.sh export --dir /opt/keycloak/data/import --realm finki-services
+

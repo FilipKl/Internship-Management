@@ -1,0 +1,131 @@
+dn: ou=groups,dc=springframework,dc=org
+objectClass: organizationalUnit
+ou: groups
+
+dn: ou=people,dc=springframework,dc=org
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=otherpeople,dc=springframework,dc=org
+objectClass: organizationalUnit
+ou: otherpeople
+
+dn: cn=developers,ou=groups,dc=springframework,dc=org
+objectClass: groupOfUniqueNames
+cn: developers
+uniqueMember: uid=ben,ou=people,dc=springframework,dc=org
+uniqueMember: uid=bob,ou=people,dc=springframework,dc=org
+
+dn: cn=managers,ou=groups,dc=springframework,dc=org
+objectClass: groupOfUniqueNames
+cn: managers
+uniqueMember: uid=jerry,ou=people,dc=springframework,dc=org
+uniqueMember: uid=joe,ou=people,dc=springframework,dc=org
+
+dn: ou=subgroups,cn=managers,ou=groups,dc=springframework,dc=org
+objectClass: organizationalUnit
+ou: subgroups
+
+dn: cn=submanagers,ou=subgroups,cn=managers,ou=groups,dc=springframework,dc=org
+objectClass: groupOfUniqueNames
+cn: submanagers
+uniqueMember: uid=test,ou=people,dc=springframework,dc=org
+
+dn: cn=space cadets,ou=groups,dc=springframework,dc=org
+objectClass: groupOfUniqueNames
+cn: space cadets
+uniqueMember: uid=space\ cadet,ou=otherpeople,dc=springframework,dc=org
+
+dn: cn=quoted\ people,ou=groups,dc=springframework,dc=org
+objectClass: groupOfUniqueNames
+cn: quoted people
+uniqueMember: uid=quoteguy,ou=otherpeople,dc=springframework,dc=org
+
+dn: uid=ben,ou=people,dc=springframework,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: ben
+cn: Ben
+sn: Benson
+mail: ben@springframework.org
+userPassword: benspassword
+
+dn: uid=bob,ou=people,dc=springframework,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: bob
+cn: Bob
+sn: Blobby
+mail: bob@springframework.org
+userPassword: bobspassword
+
+dn: uid=test,ou=people,dc=springframework,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: test
+cn: Test
+sn: User
+mail: test@springframework.org
+userPassword: testpassword
+
+dn: uid=joe,ou=people,dc=springframework,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: joe
+cn: Joe
+sn: Josephson
+mail: joe@springframework.org
+userPassword: joepassword
+
+dn: uid=jerry,ou=people,dc=springframework,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: jerry
+cn: Jerry
+sn: Jellyman
+mail: jerry@springframework.org
+userPassword: jerrypassword
+
+dn: uid=slashguy,ou=people,dc=springframework,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: slashguy
+cn: Slash Guy
+sn: Slashguy
+mail: slashguy@springframework.org
+userPassword: slashpassword
+
+dn: uid=quoteguy,ou=otherpeople,dc=springframework,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: quoteguy
+cn: Quote Guy
+sn: Quoteguy
+mail: quoteguy@springframework.org
+userPassword: quotepassword
+
+dn: uid=space\ cadet,ou=otherpeople,dc=springframework,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: space cadet
+cn: Space Cadet
+sn: Cadet
+mail: spacecadet@springframework.org
+userPassword: spacepassword
+
