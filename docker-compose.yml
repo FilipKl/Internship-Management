@@ -8,9 +8,9 @@ services:
     ports:
       - "5437:5432"
     environment:
-      POSTGRES_DB: internship_management
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     # Port not exposed - database accessed only via internal network
     volumes:
       - internship_db_data:/var/lib/postgresql/data
@@ -31,7 +31,6 @@ services:
       - "9092:9092"  # Exposed port for local connections
       - "29092:29092" # Internal broker communication
     environment:
-      # Kafka broker configuration
       KAFKA_BROKER_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
@@ -55,7 +54,6 @@ services:
       timeout: 10s
       retries: 5
 
-  # Kafka UI (optional, for visualization and debugging)
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
@@ -75,7 +73,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Axon Server for event sourcing and command handling
   axonserver:
     image: axoniq/axonserver:latest-dev
     container_name: axonserver
@@ -95,14 +92,14 @@ services:
       timeout: 5s
       retries: 5
 
-  # Consul Service Registry for service discovery
+
   consul:
     image: hashicorp/consul:1.18
     container_name: consul
     command: "agent -dev -client=0.0.0.0 -ui"
     ports:
-      - "8500:8500"        # HTTP API and UI
-      - "8600:8600/udp"    # DNS interface
+      - "8500:8500"
+      - "8600:8600/udp"
     networks:
       - shared_net
     healthcheck:
@@ -111,17 +108,16 @@ services:
       timeout: 5s
       retries: 5
 
-  # Keycloak Identity Provider
   keycloak:
     image: quay.io/keycloak/keycloak:25.0
     container_name: keycloak
     command: ["start-dev", "--import-realm"]
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_HTTP_PORT: 8080
-      KC_HOSTNAME: localhost
-      KC_HOSTNAME_PORT: 8090
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HTTP_PORT: ${KC_HTTP_PORT}
+      KC_HOSTNAME: ${KC_HOSTNAME}
+      KC_HOSTNAME_PORT: ${KC_HOSTNAME_PORT}
       KC_HOSTNAME_STRICT: "false"
       KC_HOSTNAME_STRICT_BACKCHANNEL: "false"
     ports:
@@ -136,16 +132,15 @@ services:
       timeout: 5s
       retries: 5
 
-  # OpenLDAP Directory Service
   openldap:
     image: osixia/openldap:1.5.0
     container_name: openldap
     command: --copy-service
     environment:
-      LDAP_ORGANISATION: Spring Framework
-      LDAP_DOMAIN: springframework.org
-      LDAP_ADMIN_PASSWORD: adminpassword
-      LDAP_BASE_DN: dc=springframework,dc=org
+      LDAP_ORGANISATION: ${LDAP_ORGANISATION}
+      LDAP_DOMAIN: ${LDAP_DOMAIN}
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASSWORD}
+      LDAP_BASE_DN: ${LDAP_BASE_DN}
     ports:
       - "389:389"
       - "636:636"
@@ -161,7 +156,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Internship Management Microservice
   internship_app:
     build:
       context: .
@@ -174,14 +168,14 @@ services:
     ports:
       - "8086:8086"
     environment:
-      SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: jdbc:postgresql://internship_db:5432/internship_management
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: admin
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: broker:29092
-      AXON_AXONSERVER_SERVERS: axonserver:8124
-      SPRING_CLOUD_CONSUL_HOST: consul
-      SPRING_CLOUD_CONSUL_PORT: 8500
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+      AXON_AXONSERVER_SERVERS: ${AXON_AXONSERVER_SERVERS}
+      SPRING_CLOUD_CONSUL_HOST: ${SPRING_CLOUD_CONSUL_HOST}
+      SPRING_CLOUD_CONSUL_PORT: ${SPRING_CLOUD_CONSUL_PORT}
     networks:
       - internship_services_net
       - shared_net
@@ -191,7 +185,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # API Gateway
   api-gateway:
     build:
       context: .
@@ -203,10 +196,10 @@ services:
     ports:
       - "8000:8001"
     environment:
-      SPRING_CLOUD_CONSUL_HOST: consul
-      SPRING_CLOUD_CONSUL_PORT: "8500"
-      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/finki-services/protocol/openid-connect/certs
-      KEYCLOAK_ISSUER_URI: http://localhost:8090/realms/finki-services
+      SPRING_CLOUD_CONSUL_HOST: ${SPRING_CLOUD_CONSUL_HOST}
+      SPRING_CLOUD_CONSUL_PORT: ${SPRING_CLOUD_CONSUL_PORT}
+      KEYCLOAK_JWK_SET_URI: ${KEYCLOAK_JWK_SET_URI}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
     networks:
       - shared_net
     healthcheck:
