@@ -7,10 +7,7 @@ import mk.ukim.finki.internshipmanagement.domain.internshiprequest.CoordinatorId
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.commands.SubmitInternshipRequestCommand
 import java.time.LocalDate
 
-/**
- * External event: InternshipRequest submitted
- * Published to Kafka for other microservices
- */
+
 data class InternshipRequestSubmittedExternalEvent(
     val id: InternshipRequestId,
     val studentId: StudentId,

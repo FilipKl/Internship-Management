@@ -163,6 +163,31 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!-- Pact JVM consumer (mock HTTP server + message DSL) -->
+        <dependency>
+            <groupId>au.com.dius</groupId>
+            <artifactId>pact-jvm-consumer-junit5_2.12</artifactId>
+            <version>3.6.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Pact JVM provider (verifies contracts against your running app) -->
+        <dependency>
+            <groupId>au.com.dius</groupId>
+            <artifactId>pact-jvm-provider-junit5</artifactId>
+            <version>4.0.10</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Required by pact-jvm internals on JDK 21+ -->
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>3.0.17</version>
+            <scope>test</scope>
+        </dependency>
+
+
     </dependencies>
 
     <build>

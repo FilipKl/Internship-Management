@@ -9,15 +9,6 @@ import mk.ukim.finki.internshipmanagement.domain.internshipposting.events.Intern
 import mk.ukim.finki.internshipmanagement.domain.internshiprequest.events.InternshipRequestApprovedExternalEvent
 import org.springframework.stereotype.Component
 
-/**
- * Documents all external Kafka events published by the Internship Management service.
- *
- * This class is purely for documentation via Springwolf/AsyncAPI.
- * The methods are never called at runtime — they exist only so Springwolf can extract
- * the event topic names and payload types.
- *
- * Actual event publishing happens through EventMessagingEventHandler in the infrastructure layer.
- */
 @Component
 class KafkaEventDocumentation {
 

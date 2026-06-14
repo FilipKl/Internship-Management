@@ -20,9 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-/**
- * REST controller for InternshipJournal write-side operations.
- */
+
 @RestController
 @RequestMapping("/api/v1/internship-journals")
 @Tag(
@@ -128,27 +126,18 @@ class InternshipJournalCommandController(
     }
 }
 
-// ====== Request DTOs ======
 
-/**
- * Request DTO for creating a new InternshipJournal
- */
 data class CreateInternshipJournalRequest(
     val companyName: String,
     val studentId: String,
     val professorId: String
 )
 
-/**
- * Request DTO for updating journal status
- */
+
 data class UpdateJournalStatusRequest(
     val isOngoing: Boolean
 )
 
-/**
- * Request DTO for adding a journal entry
- */
 data class AddJournalEntryRequest(
     val entryId: String
 )

@@ -14,17 +14,6 @@ class InternshipRequestEventHandler(
 ) {
     @EventHandler
     fun handle(event: InternshipRequestApprovedEvent) {
-        // We look up the approved request using the read service
-        // NOT the aggregate repository directly
         val request = queryService.findById(event.internshipRequestId)
-
-        // sendAndWait is used here because the journal must be created
-        // AFTER the request is confirmed approved - ordering matters
-        // commandGateway.sendAndWait(
-        //     OpenInternshipJournalCommand(
-        //         studentId = request.studentId,
-        //         internshipRequestId = request.internshipRequestId
-        //     )
-        // )
     }
 }

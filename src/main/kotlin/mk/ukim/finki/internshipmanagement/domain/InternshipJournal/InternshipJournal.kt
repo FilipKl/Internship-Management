@@ -22,13 +22,6 @@ import org.axonframework.modelling.command.AggregateLifecycle.apply
 import org.axonframework.spring.stereotype.Aggregate
 import java.time.LocalDateTime
 
-/**
- * InternshipJournal is the aggregate root representing an internship journal.
- * A student uses this to track their daily/weekly progress during internship.
- *
- * Immutable properties: id, dateCreated, companyName, studentId, professorId
- * Mutable properties: entries, isOngoing
- */
 
 @Aggregate
 @Entity
@@ -62,51 +55,26 @@ class InternshipJournal : LabeledEntity,AggregateRoot {
     @Enumerated(EnumType.STRING)
     lateinit var status: InternshipJournalStatus
 
-    // ----------------------
-    // Command handler: creation
-    // ----------------------
-
-    // ----------------------
-    // CommandHandler constructor for creation
-    // ----------------------
 
     constructor()
 
-    /**
-     * Create a new InternshipJournal with cross-service validation.
-     *
-     * Axon automatically injects Spring beans (ProfessorManagementClient, StudentManagementClient)
-     * as parameters. Validation happens BEFORE event creation.
-     *
-     * @param command The create journal command
-     * @param professorClient Injected by Axon for professor validation
-     * @param studentClient Injected by Axon for student validation
-     * @throws ProfessorNotFoundException if professor doesn't exist
-     * @throws StudentNotFoundException if student doesn't exist
-     */
     @CommandHandler
     constructor(
         command: CreateInternshipJournalCommand,
         professorClient: ProfessorManagementClient,
         studentClient: StudentManagementClient
     ) : super() {
-        // Step 1: Validate professor exists in external service
         if (!professorClient.existsProfessor(command.professorId)) {
             throw ProfessorNotFoundException(command.professorId)
         }
 
-        // Step 2: Validate student exists in external service
         if (!studentClient.existsStudent(command.studentId)) {
             throw StudentNotFoundException(command.studentId)
         }
 
-        // Step 3: Validation passed — create the event and apply it
         apply(InternshipJournalCreatedEvent(command))
     }
 
-    // ----------------------
-    // Event sourcing handler
-    // ----------------------
     @EventSourcingHandler
     fun on(event: InternshipJournalCreatedEvent) {
         internshipJournalId = event.internshipJournalId
@@ -157,9 +125,6 @@ class InternshipJournal : LabeledEntity,AggregateRoot {
         entries.add(event.entryId)
     }
 
-    // ----------------------
-    // LabeledEntity implementation
-    // ----------------------
     override fun getId(): InternshipJournalId = internshipJournalId
     override fun getLabel(): String = "Internship journal of student ${studentId} at ${companyName}"
 }

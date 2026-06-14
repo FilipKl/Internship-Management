@@ -20,7 +20,7 @@ import org.hibernate.annotations.Immutable
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "internship_journal") // same table as the aggregate
+@Table(name = "internship_journal")
 @Immutable
 data class InternshipJournalView(
 
@@ -47,7 +47,7 @@ data class InternshipJournalView(
     val dateCreated: LocalDateTime,
 
     @Transient
-    val numberOfEntries: Int = 0 // derived field, not persisted in internship_journal
+    val numberOfEntries: Int = 0
 ) : LabeledEntity {
 
     override fun getId(): Identifier<out Any> = internshipJournalId

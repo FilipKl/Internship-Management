@@ -5,10 +5,6 @@ import mk.ukim.finki.internshipmanagement.domain.internshipposting.InternshipPos
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
-/**
- * Read service for InternshipPosting aggregate.
- * Provides query methods for the read model.
- */
 interface InternshipPostingViewReadService {
 
     fun findAll(): List<InternshipPostingView>
@@ -31,9 +27,6 @@ interface InternshipPostingViewReadService {
 
     fun getAllPublishedPostings(): List<InternshipPostingView>
 
-    /**
-     * Get all internship postings (including draft and closed).
-     */
     fun getAllPostings(): List<InternshipPostingView>
 
     fun getRemotePostings(): List<InternshipPostingView>

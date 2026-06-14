@@ -37,13 +37,7 @@ class IncomingEventHandler(
             journalId = event.internshipJournalId,
             entryId = event.entryId
         )
-
-
             commandGateway.sendAndWait<Any>(command)
-
-
-
     }
-
 }
 

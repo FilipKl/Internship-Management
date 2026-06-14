@@ -9,10 +9,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
-/**
- * Read service for JournalEntry aggregate.
- * Provides read-only query operations on the JournalEntry read model.
- */
 interface JournalEntryViewReadService {
     fun findAll(): List<JournalEntryView>
     fun findById(id: JournalEntryId): JournalEntryView

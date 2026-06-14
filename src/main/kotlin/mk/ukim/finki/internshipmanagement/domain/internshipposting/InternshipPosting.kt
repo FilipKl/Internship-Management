@@ -15,16 +15,7 @@ import mk.ukim.finki.internshipmanagement.domain.internshipposting.Description
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.TechStack
 import mk.ukim.finki.internshipmanagement.domain.internshipposting.Location
 
-/**
- * InternshipPosting Aggregate Root
- * Manages internship posting lifecycle: Create, Update, Edit, Publish, Delete
- *
- * Uses Axon event sourcing - state is reconstructed from events, not persisted directly.
- *
- * Uses value objects for type-safe domain modeling:
- * - InternshipPostingId: Strongly-typed identifier
- * - Title, Description, Company, TechStack, Location: Embedded validated value objects
- */
+
 @Aggregate
 class InternshipPosting {
 
@@ -55,11 +46,7 @@ class InternshipPosting {
 
     constructor()
 
-    // ==================== Command Handlers ====================
 
-    /**
-     * Command Handler: Create a new InternshipPosting.
-     */
     @CommandHandler
     constructor(command: CreateInternshipPostingCommand) {
         AggregateLifecycle.apply(InternshipPostingCreatedEvent(command))
@@ -89,8 +76,6 @@ class InternshipPosting {
         AggregateLifecycle.apply(InternshipPostingDeletedEvent(command))
     }
 
-    // ==================== Event Handlers ====================
-
     @EventSourcingHandler
     fun on(event: InternshipPostingCreatedEvent) {
         internshipPostingId = event.internshipPostingId
@@ -101,7 +86,6 @@ class InternshipPosting {
         postedDate = event.postedDate
         validUntil = event.validUntil
         contactEmail = event.contactEmail
-        // Parse location string - format: "city, country" or "city, country (Remote)"
         val isRemote = event.location.contains("(Remote)")
         val locationParts = event.location.replace(" (Remote)", "").split(",").map { it.trim() }
         val city = if (locationParts.isNotEmpty() && locationParts[0].isNotBlank()) locationParts[0] else "Unknown"
@@ -117,7 +101,6 @@ class InternshipPosting {
         company = CompanyName(event.company)
         description = Description(event.description)
         techStack = TechStack(event.techStack)
-        // Parse location string
         val isRemote = event.location.contains("(Remote)")
         val locationParts = event.location.replace(" (Remote)", "").split(",").map { it.trim() }
         val city = if (locationParts.isNotEmpty() && locationParts[0].isNotBlank()) locationParts[0] else "Unknown"
@@ -146,7 +129,6 @@ class InternshipPosting {
         updatedAt = LocalDateTime.now()
     }
 
-    // ==================== Status Enum ====================
 
     enum class PostingStatus {
         DRAFT, PUBLISHED, CLOSED;

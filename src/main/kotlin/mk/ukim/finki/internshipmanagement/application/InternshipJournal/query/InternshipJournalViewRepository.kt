@@ -11,12 +11,9 @@ import java.time.LocalDateTime
 interface InternshipJournalViewJpaRepository :
     JpaRepository<InternshipJournalView, InternshipJournalId> {
 
-    // Custom finder 1: filter by status
     fun findByStatus(status: InternshipJournalStatus): List<InternshipJournalView>
 
-    // Custom finder 2: filter by student
     fun findByStudentId(studentId: StudentId): List<InternshipJournalView>
 
-    // Optional extra: filter by creation date range
     fun findByDateCreatedBetween(from: LocalDateTime, to: LocalDateTime): List<InternshipJournalView>
 }

@@ -16,16 +16,7 @@ import org.springframework.web.bind.annotation.*
 import java.util.concurrent.ExecutionException
 import org.apache.kafka.clients.producer.RecordMetadata
 
-/**
- * REST Controller for Kafka Management operations.
- * Provides HTTP endpoints for monitoring Kafka topics, publishing messages, and managing Kafka infrastructure.
- *
- * This controller enables:
- * - Publishing messages to Kafka topics
- * - Monitoring topic information
- * - Health checks for Kafka connectivity
- * - Message publishing for testing purposes
- */
+
 @RestController
 @RequestMapping("/api/v1/kafka")
 @Tag(
@@ -255,25 +246,18 @@ class KafkaManagementController(
         }
     }
 
-    /**
-     * Request class for publishing plain text messages to Kafka.
-     */
+
     data class PublishMessageRequest(
         val key: String? = null,
         val message: String = ""
     )
 
-    /**
-     * Request class for publishing JSON messages to Kafka.
-     */
     data class PublishJsonMessageRequest(
         val key: String? = null,
         val payload: Any = mapOf<String, Any>()
     )
 
-    /**
-     * Response class for message publishing operations.
-     */
+
     data class PublishMessageResponse(
         val success: Boolean,
         val message: String,
@@ -281,7 +265,6 @@ class KafkaManagementController(
         val messagePartition: Int,
         val messageOffset: Long
     ) {
-        // For backward compatibility, provide partition and offset as well
         @Suppress("unused")
         val partition: Int get() = messagePartition
 

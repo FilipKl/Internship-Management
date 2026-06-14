@@ -7,18 +7,12 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-/**
- * Base class for all InternshipPosting events.
- * Extends AbstractEvent to support Kafka publishing.
- */
+
 abstract class InternshipPostingEvent(
     open val internshipPostingId: InternshipPostingId
 ) : AbstractEvent(internshipPostingId)
 
-/**
- * External event: InternshipPosting created
- * Published to Kafka for other microservices
- */
+
 data class InternshipPostingCreatedExternalEvent(
     val id: InternshipPostingId,
     val title: String,
@@ -96,10 +90,7 @@ data class InternshipPostingEditedEvent(
     )
 }
 
-/**
- * External event: InternshipPosting published
- * Published to Kafka for other microservices
- */
+
 data class InternshipPostingPublishedExternalEvent(
     val id: InternshipPostingId,
     val publishedBy: String
@@ -122,9 +113,7 @@ data class InternshipPostingPublishedEvent(
     }
 }
 
-/**
- * Internal event - do not publish
- */
+
 data class InternshipPostingDeletedEvent(
     override val internshipPostingId: InternshipPostingId
 ) : InternshipPostingEvent(internshipPostingId) {

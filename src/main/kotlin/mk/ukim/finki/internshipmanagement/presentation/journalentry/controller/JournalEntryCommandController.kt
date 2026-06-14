@@ -9,11 +9,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.concurrent.CompletableFuture
 
-/**
- * REST Controller for JournalEntry write operations (commands).
- * Handles all command requests that modify the JournalEntry aggregate state.
- * Commands are sent to Axon Server which processes them and emits events.
- */
+
 @RestController
 @RequestMapping("/api/v1/journal-entries")
 @Tag(
@@ -136,41 +132,25 @@ class JournalEntryCommandController(
     }
 }
 
-// ====== Request DTOs ======
 
-/**
- * Request DTO for creating a new JournalEntry
- */
 data class CreateJournalEntryRequest(
     val journalId: String,
     val titleText: String,
     val contentText: String
 )
 
-/**
- * Request DTO for updating entry title
- */
 data class UpdateTitleRequest(
     val newTitleText: String
 )
 
-/**
- * Request DTO for updating entry content
- */
 data class UpdateContentRequest(
     val newContentText: String
 )
 
-/**
- * Request DTO for validating an entry
- */
 data class ValidateEntryRequest(
     val validatedBy: String
 )
 
-/**
- * Request DTO for rejecting an entry
- */
 data class RejectEntryRequest(
     val rejectedBy: String,
     val rejectionReason: String

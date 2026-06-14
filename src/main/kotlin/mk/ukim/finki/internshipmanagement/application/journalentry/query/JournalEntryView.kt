@@ -14,17 +14,14 @@ import mk.ukim.finki.internshipmanagement.domain.journalentry.JournalEntryId
 import org.hibernate.annotations.Immutable
 import java.time.LocalDateTime
 
-/**
- * Read model / View for JournalEntry aggregate.
- * Mutable projection optimized for updates from event handlers.
- */
+
 @Entity
 @Table(name = "journal_entries")
 data class JournalEntryView(
     @EmbeddedId
     @AttributeOverride(name = "id", column = Column(name = "id"))
     val journalEntryId: JournalEntryId = JournalEntryId(java.util.UUID.randomUUID()),
-    // ...existing code...
+
     val journalId: String = "",
 
     @Column(nullable = false)

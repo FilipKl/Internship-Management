@@ -6,15 +6,12 @@ import mk.ukim.finki.internshipmanagement.domain.journalentry.commands.*
 import java.time.LocalDateTime
 import java.util.*
 
-/**
- * Base class for all JournalEntry domain events.
- * Extends AbstractEvent to support Kafka publishing.
- */
+
 abstract class JournalEntryEvent(
     open val journalEntryId: JournalEntryId
 ) : AbstractEvent(journalEntryId)
 
-// External event for JournalEntry creation
+
 data class JournalEntryCreatedExternalEvent(
     val id: JournalEntryId,
     val journalId: String,
@@ -22,7 +19,7 @@ data class JournalEntryCreatedExternalEvent(
     val content: String
 )
 
-// Creation Event
+
 data class JournalEntryCreatedEvent(
     override val journalEntryId: JournalEntryId,
     val journalId: String,
@@ -47,7 +44,7 @@ data class JournalEntryCreatedEvent(
     }
 }
 
-// Update Events (internal - do not publish)
+
 data class EntryTitleUpdatedEvent(
     override val journalEntryId: JournalEntryId,
     val newTitle: String
@@ -70,20 +67,20 @@ data class EntryContentUpdatedEvent(
     )
 }
 
-// External event for validation
+
 data class JournalEntryValidatedExternalEvent(
     val id: JournalEntryId,
     val validatedBy: String
 )
 
-// External event for rejection
+
 data class JournalEntryRejectedExternalEvent(
     val id: JournalEntryId,
     val rejectedBy: String,
     val rejectionReason: String
 )
 
-// Status Events
+
 data class JournalEntryValidatedEvent(
     override val journalEntryId: JournalEntryId,
     val validatedBy: String
@@ -123,7 +120,7 @@ data class JournalEntryRejectedEvent(
     }
 }
 
-// Legacy Events (internal - do not publish)
+
 data class JournalEntryEditedEvent(
     override val journalEntryId: JournalEntryId,
     val journalId: String,

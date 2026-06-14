@@ -11,26 +11,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
 
-/**
- * KafkaEventConsumer listens to events published by the PartnersManagement service.
- *
- * The consumer group "internship-management-group" ensures that if there are multiple
- * instances of this service, they coordinate consumption and don't duplicate processing.
- *
- * Topics consumed:
- * - "partner-events": events from PartnersManagement (partner registration, updates, deactivation)
- *
- * The flow:
- * 1. Spring Kafka polls the "partner-events" topic
- * 2. For each record, this method deserializes the JSON into an external DTO
- * 3. The PartnerEventTranslator (ACL) converts the external DTO to domain objects
- * 4. We log the event and update our internal state if needed
- *
- * Note: This consumer currently logs events. In a full implementation, you might:
- * - Store partner information in a cache or read model
- * - Validate internship journals against active partners
- * - Trigger notifications or workflows
- */
+
 @Service
 class KafkaEventConsumer(
     private val partnerEventTranslator: PartnerEventTranslator
@@ -41,9 +22,7 @@ class KafkaEventConsumer(
     private val objectMapper = ObjectMapper()
         .registerModule(KotlinModule.Builder().build())
 
-    /**
-     * Listens to the "partner-events" topic for partner registration events.
-     */
+
     @KafkaListener(
         topics = ["partner-events"],
         groupId = "internship-management-group",

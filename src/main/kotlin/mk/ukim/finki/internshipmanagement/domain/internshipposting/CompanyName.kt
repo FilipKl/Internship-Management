@@ -2,13 +2,7 @@ package mk.ukim.finki.internshipmanagement.domain.internshipposting
 
 import jakarta.persistence.Embeddable
 
-/**
- * Value object representing the company name for an internship posting.
- * 
- * Constraints:
- * - Must be non-blank
- * - Must not exceed 255 characters
- */
+
 @Embeddable
 data class CompanyName(val value: String = "") {
     init {

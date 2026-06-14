@@ -9,10 +9,7 @@ import mk.ukim.finki.internshipmanagement.application.internshipposting.query.In
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-/**
- * REST Controller for InternshipPosting read operations.
- * Provides HTTP endpoints for querying the InternshipPosting read model.
- */
+
 @RestController
 @RequestMapping("/api/v1/internship-postings")
 @Tag(

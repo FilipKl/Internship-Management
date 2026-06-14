@@ -9,10 +9,7 @@ import mk.ukim.finki.internshipmanagement.application.journalentry.query.Journal
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-/**
- * REST Controller for JournalEntry read operations.
- * Provides HTTP endpoints for querying the JournalEntry read model.
- */
+
 @RestController
 @RequestMapping("/api/v1/journal-entries")
 @Tag(

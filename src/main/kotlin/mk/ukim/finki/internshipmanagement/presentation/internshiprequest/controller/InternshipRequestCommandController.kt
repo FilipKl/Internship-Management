@@ -23,9 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
-/**
- * REST controller for InternshipRequest write-side operations.
- */
 @RestController
 @RequestMapping("/api/v1/internship-requests")
 @Tag(

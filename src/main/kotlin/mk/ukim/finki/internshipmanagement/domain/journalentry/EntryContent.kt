@@ -2,14 +2,7 @@ package mk.ukim.finki.internshipmanagement.domain.journalentry
 
 import jakarta.persistence.Embeddable
 
-/**
- * Value object representing the content/body of a journal entry.
- * 
- * Constraints:
- * - Must be non-blank (trimmed)
- * - Must be at least 10 characters (meaningful reflection, not just a sentence)
- * - Must not exceed 50,000 characters (prevent database abuse)
- */
+
 @Embeddable
 data class EntryContent(val value: String = "") {
     

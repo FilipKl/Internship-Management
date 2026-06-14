@@ -9,17 +9,7 @@ import org.axonframework.modelling.command.AggregateLifecycle
 import org.axonframework.spring.stereotype.Aggregate
 import java.time.LocalDateTime
 
-/**
- * JournalEntry Aggregate Root
- * Manages journal entry lifecycle: Create, Edit, Validate, Reject
- * 
- * Uses Axon event sourcing - state is reconstructed from events, not persisted directly.
- *
- * Uses value objects for type-safe domain modeling:
- * - JournalEntryId: Strongly-typed identifier with "JournalEntry:" prefix
- * - EntryTitle: Validated title (1-255 chars)
- * - EntryContent: Validated content (10-50000 chars)
- */
+
 @Aggregate
 class JournalEntry {
 
@@ -42,10 +32,7 @@ class JournalEntry {
     var reviewReason: String? = null
 
     constructor()
-    
-    /**
-     * Command Handler: Create a new JournalEntry.
-     */
+
     @CommandHandler
     constructor(command: CreateJournalEntryCommand) {
         AggregateLifecycle.apply(JournalEntryCreatedEvent(
@@ -56,7 +43,7 @@ class JournalEntry {
         ))
     }
     
-    // Event Handlers
+
     @EventSourcingHandler
     fun on(event: JournalEntryCreatedEvent) {
         journalEntryId = event.journalEntryId
@@ -67,7 +54,7 @@ class JournalEntry {
         createdAt = LocalDateTime.now()
     }
     
-    // Command Handlers - Update Title
+
     @CommandHandler
     fun handle(command: UpdateEntryTitleCommand) {
         check(status == EntryStatus.DRAFT) { "Only draft entries can be edited" }
@@ -83,7 +70,7 @@ class JournalEntry {
         editedAt = LocalDateTime.now()
     }
     
-    // Command Handlers - Update Content
+
     @CommandHandler
     fun handle(command: UpdateEntryContentCommand) {
         check(status == EntryStatus.DRAFT) { "Only draft entries can be edited" }
@@ -98,8 +85,7 @@ class JournalEntry {
         content = EntryContent(event.newContent)
         editedAt = LocalDateTime.now()
     }
-    
-    // Command Handlers - Validate
+
     @CommandHandler
     fun handle(command: ValidateJournalEntryCommand) {
         check(status == EntryStatus.DRAFT) { "Only draft entries can be validated" }
@@ -116,7 +102,7 @@ class JournalEntry {
         reviewedBy = event.validatedBy
     }
     
-    // Command Handlers - Reject
+
     @CommandHandler
     fun handle(command: RejectJournalEntryCommand) {
         check(status != EntryStatus.REJECTED) { "Entry is already rejected" }
@@ -136,7 +122,7 @@ class JournalEntry {
         reviewReason = event.rejectionReason
     }
     
-    // Legacy Methods for backward compatibility
+
     @Deprecated("Use command handlers instead")
     fun edit(titleText: String, contentText: String) {
         check(status == EntryStatus.DRAFT) { "Only draft entries can be edited" }
@@ -148,8 +134,7 @@ class JournalEntry {
         content = EntryContent(event.content)
         editedAt = LocalDateTime.now()
     }
-    
-    // Status enum
+
     enum class EntryStatus {
         DRAFT, VALIDATED, REJECTED
     }

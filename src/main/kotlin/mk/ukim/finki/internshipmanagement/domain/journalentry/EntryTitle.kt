@@ -2,14 +2,7 @@ package mk.ukim.finki.internshipmanagement.domain.journalentry
 
 import jakarta.persistence.Embeddable
 
-/**
- * Value object representing the title of a journal entry.
- * 
- * Constraints:
- * - Must be non-blank (trimmed)
- * - Must be between 1 and 255 characters
- * - Represents the headline/subject of the reflection
- */
+
 @Embeddable
 data class EntryTitle(val value: String = "") {
     

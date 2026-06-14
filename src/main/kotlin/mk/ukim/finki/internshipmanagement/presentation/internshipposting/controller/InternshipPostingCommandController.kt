@@ -12,11 +12,7 @@ import java.time.LocalDate
 import jakarta.validation.Valid
 import jakarta.validation.constraints.*
 
-/**
- * REST Controller for InternshipPosting write operations (commands).
- * Handles all command requests that modify the InternshipPosting aggregate state.
- * Commands are sent to Axon Server which processes them and emits events.
- */
+
 @RestController
 @RequestMapping("/api/v1/internship-postings")
 @Tag(
@@ -152,11 +148,7 @@ class InternshipPostingCommandController(
     }
 }
 
-// ====== Request DTOs ======
 
-/**
- * Request DTO for creating a new InternshipPosting
- */
 data class CreateInternshipPostingRequest(
     @field:NotBlank(message = "Title cannot be blank")
     @field:Size(min = 3, max = 200, message = "Title must be between 3 and 200 characters")
@@ -188,9 +180,7 @@ data class CreateInternshipPostingRequest(
     val contactEmail: String
 )
 
-/**
- * Request DTO for updating an InternshipPosting
- */
+
 data class UpdateInternshipPostingRequest(
     @field:NotBlank(message = "Title cannot be blank")
     @field:Size(min = 3, max = 200, message = "Title must be between 3 and 200 characters")
@@ -219,9 +209,7 @@ data class UpdateInternshipPostingRequest(
     val contactEmail: String
 )
 
-/**
- * Request DTO for editing an InternshipPosting (limited fields)
- */
+
 data class EditInternshipPostingRequest(
     @field:NotBlank(message = "Title cannot be blank")
     @field:Size(min = 3, max = 200, message = "Title must be between 3 and 200 characters")
@@ -236,9 +224,6 @@ data class EditInternshipPostingRequest(
     val techStack: String
 )
 
-/**
- * Request DTO for publishing an InternshipPosting
- */
 data class PublishInternshipPostingRequest(
     @field:NotBlank(message = "Publisher ID cannot be blank")
     val publishedBy: String

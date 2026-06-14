@@ -2,13 +2,7 @@ package mk.ukim.finki.internshipmanagement.domain.internshipposting
 
 import jakarta.persistence.Embeddable
 
-/**
- * Value object representing the salary for an internship posting.
- * 
- * Constraints:
- * - Amount must be non-negative (can be null for unpaid internships)
- * - Currency must be a valid 3-letter code (e.g., USD, EUR, GBP)
- */
+
 @Embeddable
 data class Salary(
     val amount: Double? = null,

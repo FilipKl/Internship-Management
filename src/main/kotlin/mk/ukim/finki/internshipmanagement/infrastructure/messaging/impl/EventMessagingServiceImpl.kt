@@ -4,10 +4,7 @@ import mk.ukim.finki.internshipmanagement.infrastructure.messaging.EventMessagin
 import mk.ukim.finki.internshipmanagement.infrastructure.messaging.EventMessagingService
 import org.springframework.stereotype.Service
 
-/**
- * Service implementation that delegates to the repository layer.
- * This is a thin delegation layer - all actual work happens in the repository.
- */
+
 @Service
 class EventMessagingServiceImpl(
     val eventMessagingRepository: EventMessagingRepository

@@ -8,10 +8,7 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 
-/**
- * Repository for JournalEntryView read model.
- * Provides read-only access to journal entries with custom finders.
- */
+
 @Repository
 interface JournalEntryViewRepository : JpaRepository<JournalEntryView, JournalEntryId> {
 

@@ -2,14 +2,7 @@ package mk.ukim.finki.internshipmanagement.domain.internshipposting
 
 import jakarta.persistence.Embeddable
 
-/**
- * Value object representing the title of an internship posting.
- *
- * Constraints:
- * - Must be non-blank (trimmed)
- * - Must be between 3 and 200 characters
- * - Represents the headline of the internship
- */
+
 @Embeddable
 data class JobTitle(val value: String = "") {
 

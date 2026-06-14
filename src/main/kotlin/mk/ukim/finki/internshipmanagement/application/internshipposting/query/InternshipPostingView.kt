@@ -7,9 +7,6 @@ import mk.ukim.finki.internshipmanagement.domain.internshipposting.InternshipPos
 import org.hibernate.annotations.Immutable
 import java.time.LocalDateTime
 
-/**
- * Embedded Location value object for InternshipPostingView.
- */
 @Embeddable
 data class Location(
     @Column(nullable = false)
@@ -22,10 +19,6 @@ data class Location(
     val isRemote: Boolean = false
 )
 
-/**
- * Read model / View for InternshipPosting aggregate.
- * Immutable projection optimized for display/query purposes.
- */
 @Entity
 @Table(name = "internship_postings")
 @Immutable
